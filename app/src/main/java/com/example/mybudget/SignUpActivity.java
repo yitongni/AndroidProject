@@ -33,9 +33,9 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_signup);
 
+        firebaseAuth= FirebaseAuth.getInstance();
 
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
@@ -51,6 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    //Get user username and password
     public void registerUser()
     {
         String email = editTextEmail.getText().toString().trim();
@@ -71,6 +72,8 @@ public class SignUpActivity extends AppCompatActivity {
             Toast.makeText(this,"Passwords does not match",Toast.LENGTH_LONG).show();
             return;
         }
+
+        createAccount(email, password);
     }
 
     public void createAccount(String email, String password)
@@ -92,7 +95,7 @@ public class SignUpActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            //Toast.makeText(EmailPasswordActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignUpActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
