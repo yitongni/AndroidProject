@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MyBudget</string>
+    <string name="budget">Budget: $%1$s</string>
 </resources>

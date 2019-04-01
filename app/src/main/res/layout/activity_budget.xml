@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/textViewBudget"
+        android:layout_width="250dp"
+        android:layout_height="75dp"
+        android:clickable="true"
+        android:gravity="center"
+        android:textSize="25dp"/>
+
+    <EditText
+        android:id="@+id/editTextBudget"
+        android:layout_width="250dp"
+        android:layout_height="75dp"
+        android:background="#FF44"
+        android:hint="Enter a budget"
+        android:inputType="numberDecimal"
+        android:textSize="25dp" />
+
+    <Button
+        android:id="@+id/addCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="75dp"
+        android:layout_marginStart="300dp"
+        android:text="Add"/>
+
+    <ListView
+        android:id="@+id/list_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="75dp"
+        android:layout_marginBottom="60dp">
+    </ListView>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/navigation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:background="?android:attr/windowBackground"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:menu="@menu/navigation" />
+    </android.support.constraint.ConstraintLayout>
+
+</RelativeLayout>

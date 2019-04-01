@@ -5,17 +5,21 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class ProfileActivity extends AppCompatActivity {
 
+    private static final String TAG="ProfileActivity";
     private Button logoutButton;
     private FirebaseAuth mAuth;
+    private String userid;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -26,6 +30,8 @@ public class ProfileActivity extends AppCompatActivity {
                 case R.id.profile:
                     return true;
                 case R.id.myBudget:
+                    Intent myintent =new Intent(ProfileActivity.this, BudgetActivity.class);
+                    startActivity(myintent);
                     return true;
             }
             return false;
@@ -40,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         logoutButton=(Button) findViewById(R.id.buttonLogOut);
         mAuth= FirebaseAuth.getInstance();
+        mAuth.getCurrentUser().getUid();
 
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,6 +54,9 @@ public class ProfileActivity extends AppCompatActivity {
                 LogOut();
             }
         });
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        Log.d(TAG, user.getUid());
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
