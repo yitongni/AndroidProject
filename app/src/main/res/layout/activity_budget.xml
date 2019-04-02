@@ -4,29 +4,37 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <Button
+        android:id="@+id/editBudget"
+        android:layout_width="wrap_content"
+        android:layout_height="75dp"
+        android:text="Set Budget"/>
+
     <TextView
         android:id="@+id/textViewBudget"
-        android:layout_width="250dp"
+        android:layout_width="190dp"
         android:layout_height="75dp"
+        android:layout_toRightOf="@+id/editBudget"
+        android:background="#FF44"
         android:clickable="true"
         android:gravity="center"
         android:textSize="25dp"/>
 
-    <EditText
-        android:id="@+id/editTextBudget"
-        android:layout_width="250dp"
-        android:layout_height="75dp"
-        android:background="#FF44"
-        android:hint="Enter a budget"
-        android:inputType="numberDecimal"
-        android:textSize="25dp" />
+    <!--<EditText-->
+        <!--android:id="@+id/editTextBudget"-->
+        <!--android:layout_width="250dp"-->
+        <!--android:layout_height="75dp"-->
+        <!--android:background="#FF44"-->
+        <!--android:hint="Enter a budget"-->
+        <!--android:inputType="numberDecimal"-->
+        <!--android:textSize="25dp" />-->
 
     <Button
         android:id="@+id/addCategory"
         android:layout_width="wrap_content"
         android:layout_height="75dp"
         android:layout_marginStart="300dp"
-        android:text="Add"/>
+        android:text="Add Category"/>
 
     <ListView
         android:id="@+id/list_item"

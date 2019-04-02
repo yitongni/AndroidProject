@@ -17,33 +17,91 @@ public class PopupActivity extends Activity {
     private static final String TAG = "PopupActivity";
     private Button btn_save;
     private EditText cat_name;
+    private EditText budget;
     private String category;
+    private String butgetCost;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup);
 
         cat_name=(EditText)findViewById(R.id.categoryName);
+        budget=(EditText)findViewById(R.id.editTextBudget);
 
-        btn_save=(Button)findViewById(R.id.btn_save);
-        btn_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                category = cat_name.getText().toString();
-                if (!(category.trim().equals(""))) { //Make sure it not empty string
-                    Log.d(TAG, "onClick: Name" + category);
+        Intent myIntent=getIntent();
+        if(myIntent.hasExtra("ButtonID"))
+        {
+            int intValue = myIntent.getIntExtra("ButtonID", 0);
+            if(intValue==R.id.editBudget)
+            {
+                cat_name.setVisibility(View.GONE);
+                budget.setVisibility(View.VISIBLE);
 
-                    Intent intent = new Intent();
-                    intent.putExtra("DATA", category);
-                    setResult(RESULT_OK, intent);
-                    finish();
-                }
-                else
-                {
-                    Toast.makeText(PopupActivity.this, "Please Enter something.", Toast.LENGTH_SHORT).show();
-                }
+                btn_save=(Button)findViewById(R.id.btn_save);
+                btn_save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        butgetCost = budget.getText().toString();
+                        if (!(butgetCost.trim().equals(""))) { //Make sure it not empty string
+                            Log.d(TAG, "onClick: Name" + butgetCost);
+                            Intent intent = new Intent();
+                            intent.putExtra("Budget", butgetCost);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        }
+                        else
+                        {
+                            Toast.makeText(PopupActivity.this, "Please Enter something.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
-        });
+            else if(intValue==R.id.addCategory)
+            {
+                budget.setVisibility(View.GONE);
+                cat_name.setVisibility(View.VISIBLE);
+
+                btn_save=(Button)findViewById(R.id.btn_save);
+                btn_save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        category = cat_name.getText().toString();
+                        if (!(category.trim().equals(""))) { //Make sure it not empty string
+                            Log.d(TAG, "onClick: Name" + category);
+
+                            Intent intent = new Intent();
+                            intent.putExtra("Category", category);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        }
+                        else
+                        {
+                            Toast.makeText(PopupActivity.this, "Please Enter something.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        }
+
+//        btn_save=(Button)findViewById(R.id.btn_save);
+//        btn_save.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                category = cat_name.getText().toString();
+//                if (!(category.trim().equals(""))) { //Make sure it not empty string
+//                    Log.d(TAG, "onClick: Name" + category);
+//
+//                    Intent intent = new Intent();
+//                    intent.putExtra("DATA", category);
+//                    setResult(RESULT_OK, intent);
+//                    finish();
+//                }
+//                else
+//                {
+//                    Toast.makeText(PopupActivity.this, "Please Enter something.", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
 
         DisplayMetrics dm= new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);

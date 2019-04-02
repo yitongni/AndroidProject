@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -36,13 +37,16 @@ public class SignUpActivity extends AppCompatActivity {
     private TextView textViewSignup;
 
     private FirebaseAuth firebaseAuth;
-
+    private DatabaseReference mDataBaseUsers;
+    private User myuser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
         firebaseAuth= FirebaseAuth.getInstance();
+        mDataBaseUsers=FirebaseDatabase.getInstance().getReference("/");
+        myuser=new User();
 
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
@@ -83,7 +87,7 @@ public class SignUpActivity extends AppCompatActivity {
         createAccount(email, password);
     }
 
-    public void createAccount(String email, String password)
+    public void createAccount(final String email, String password)
     {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -93,27 +97,11 @@ public class SignUpActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = firebaseAuth.getCurrentUser();
-
-                            Log.d(TAG, user.getEmail());
-                            Map<String, FirebaseUser> usermap =new HashMap<>();
-
-                            Log.d(TAG, user.getUid());
-                            usermap.put(user.getUid(), user);
-                            FirebaseFirestore db=FirebaseFirestore.getInstance();
-                            db.collection("users").document(user.getUid())
-                                    .set(usermap)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error writing document", e);
-                                        }
-                                    });
+                            Log.d(TAG, "createUserWithEmail:success"+ user.getEmail() );
+                            Log.d(TAG, "createUserWithEmail:success"+ user.getUid() );
+                            myuser.setEmail(user.getEmail());
+                            myuser.setUserID(user.getUid());
+                            mDataBaseUsers.child(user.getUid()).setValue(myuser);
                             finish();
 
                             Intent myintent=new Intent(SignUpActivity.this, ProfileActivity.class);
