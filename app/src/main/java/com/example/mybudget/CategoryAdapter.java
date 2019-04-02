@@ -10,8 +10,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class CategoryAdapter extends ArrayAdapter<Category> {
-    public CategoryAdapter(Context context, ArrayList<Category> crimes) {
-        super(context, 0, crimes);
+    public CategoryAdapter(Context context, ArrayList<Category> categories) {
+        super(context, 0, categories);
     }
 
     @Override
@@ -21,12 +21,15 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
         }
 
         TextView description = convertView.findViewById(R.id.category);
+        TextView cost = convertView.findViewById(R.id.Cost);
 
         Category category=getItem(position);
 
         String name= category.getCategory();
+        Double price= category.getCost();
 
         description.setText(name);
+        cost.setText(price.toString());
 
         return convertView;
     }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Category {
 
     private String category;
-    private ArrayList<Double> cost;
+    private Double cost;
 
     public Category(){}
 
@@ -21,8 +21,11 @@ public class Category {
         this.category = category;
     }
 
-    public void addCost(double cost)
-    {
-        this.cost.add(cost);
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
     }
 }

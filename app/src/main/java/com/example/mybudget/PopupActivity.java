@@ -10,16 +10,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 public class PopupActivity extends Activity {
 
     private static final String TAG = "PopupActivity";
     private Button btn_save;
-    private EditText cat_name;
-    private EditText budget;
-    private String category;
-    private String butgetCost;
+    private Spinner spinner1;
+    private EditText cat_name, budget, categoryCost;
+    private String category, butgetCost, catCost;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +27,7 @@ public class PopupActivity extends Activity {
 
         cat_name=(EditText)findViewById(R.id.categoryName);
         budget=(EditText)findViewById(R.id.editTextBudget);
+        categoryCost=(EditText)findViewById(R.id.categoryCost);
 
         Intent myIntent=getIntent();
         if(myIntent.hasExtra("ButtonID"))
@@ -35,6 +36,7 @@ public class PopupActivity extends Activity {
             if(intValue==R.id.editBudget)
             {
                 cat_name.setVisibility(View.GONE);
+                categoryCost.setVisibility(View.GONE);
                 budget.setVisibility(View.VISIBLE);
 
                 btn_save=(Button)findViewById(R.id.btn_save);
@@ -60,17 +62,20 @@ public class PopupActivity extends Activity {
             {
                 budget.setVisibility(View.GONE);
                 cat_name.setVisibility(View.VISIBLE);
+                categoryCost.setVisibility(View.VISIBLE);
 
                 btn_save=(Button)findViewById(R.id.btn_save);
                 btn_save.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         category = cat_name.getText().toString();
+                        catCost= categoryCost.getText().toString();
                         if (!(category.trim().equals(""))) { //Make sure it not empty string
                             Log.d(TAG, "onClick: Name" + category);
 
                             Intent intent = new Intent();
                             intent.putExtra("Category", category);
+                            intent.putExtra("CategoryCost", catCost);
                             setResult(RESULT_OK, intent);
                             finish();
                         }

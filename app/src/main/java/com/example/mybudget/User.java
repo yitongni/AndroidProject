@@ -39,10 +39,6 @@ public class User {
         userCategory.add(name);
     }
 
-    public void setUserCategory(ArrayList<Category> userCategory) {
-        this.userCategory = userCategory;
-    }
-
     public ArrayList<Category> getUserCategory() {
         return userCategory;
     }

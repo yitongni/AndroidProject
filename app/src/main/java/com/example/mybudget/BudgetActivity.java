@@ -14,10 +14,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ExpandableListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,14 +34,17 @@ import java.util.ArrayList;
 public class BudgetActivity extends AppCompatActivity {
 
     private static final String TAG = "BudgetActivity";
+
     //private EditText editText;
     private Button addBudgetButton, addCategoryButton;
     private TextView textView;
 
     private User user;
-    private FirebaseUser myuser;
-    private DatabaseReference mDataBaseUsers;
 
+
+    private FirebaseUser myuser;
+
+    private DatabaseReference mDataBaseUsers;
     private ArrayList<Category> myCategory;
 
     static final int REQUEST_CODE = 0;
@@ -110,8 +115,7 @@ public class BudgetActivity extends AppCompatActivity {
 
     //Retrieves data from database
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         super.onStart();
         Log.d(TAG, "OnStart " + myuser.getUid());
 
@@ -122,11 +126,10 @@ public class BudgetActivity extends AppCompatActivity {
                 myCategory.clear();
                 Log.d(TAG, "Entering");
                 for(DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Category newCat=postSnapshot.getValue(Category.class);
-                    //Log.d(TAG, r);
-                    Category newCategory=new Category(newCat.getCategory());
-                    user.addCategory(newCategory);
-                    myCategory.add(newCategory);
+                    Category newCat=new Category(postSnapshot.getValue(Category.class).getCategory());
+                    newCat.setCost(postSnapshot.getValue(Category.class).getCost());
+                    user.addCategory(newCat);
+                    myCategory.add(newCat);
                 }
                 populateListView();
             }
@@ -143,31 +146,31 @@ public class BudgetActivity extends AppCompatActivity {
                 // A contact was picked.  Here we will just display it
                 // to the user.
                 if(data.hasExtra("Category")){
-
                     Category category=new Category(data.getStringExtra("Category"));
+                    Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
+                    category.setCost(cost);
                     myCategory.add(category);
                     user.addCategory(category);
-                    updateDatabase();
+                    updateCategoryDatabase(myCategory);
                 }
                 else if(data.hasExtra("Budget")) {
                     String mybudget = data.getStringExtra("Budget");
                     double amount;
                     if (!(mybudget.trim().equals(""))) { //Make sure it not empty string
-
                         amount = Double.parseDouble(mybudget);
                     } else {
                         amount = 0.00; //Set amount to 0
                     }
                     user.setBudget(amount);
                     textView.setText(getString(R.string.budget, String.format("%.2f", amount)));
-                    updateDatabase();
+                    updateBudgetDatabase(amount);
                 }
             }
         }
     }
 
-    //updatesDatabase
-    private void updateDatabase() {
+    //updatesCategoryDatabase
+    private void updateCategoryDatabase(final ArrayList<Category> myCategory) {
         Log.d(TAG, "Adding to database");
         mDataBaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -193,40 +196,31 @@ public class BudgetActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
-//    private void init() {
-//        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-//                if(actionId == EditorInfo.IME_ACTION_SEARCH ||
-//                        actionId == EditorInfo.IME_ACTION_DONE ||
-//                        event.getAction() == KeyEvent.ACTION_DOWN ||
-//                        event.getAction() == KeyEvent.KEYCODE_ENTER) {
-//                    getMyBudget();
-//                }
-//                return false;
-//            }
-//        });
-//    }
+    //updateBudgetDatabase
+    private void updateBudgetDatabase(final double budget){
+        Log.d(TAG, "Adding to database");
+        mDataBaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //iterating through all the nodes
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Log.d(TAG, "Entering");
+                    if (postSnapshot.getKey().equals(myuser.getUid())) {
 
-//    public void getMyBudget() {
-//        mybudget = editText.getText().toString(); //Get EditText
-//        if (!(mybudget.trim().equals(""))) { //Make sure it not empty string
-//
-//            amount = Double.parseDouble(mybudget);
-//        } else {
-//            amount = 0.00; //Set amount to 0
-//        }
-//
-//        textView.setText(getString(R.string.budget, String.format("%.2f", amount))); //Set the text to display amount
-//        //editText.setVisibility(View.GONE); //Make EditText disappear
-//        //textView.setVisibility(View.VISIBLE); //Make TextView Appear
-//    }
+                        User a_user = postSnapshot.getValue(User.class);
+                        mDataBaseUsers.child(a_user.getUserID()).child("budget").setValue(budget);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
 
-    public void populateListView()
-    {
+    public void populateListView() {
         CategoryAdapter adapter=new CategoryAdapter(this, myCategory);
         ListView listView = (ListView) findViewById(R.id.list_item);
         listView.setAdapter(adapter);
