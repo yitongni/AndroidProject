@@ -9,10 +9,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.w3c.dom.Text;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -20,6 +23,8 @@ public class ProfileActivity extends AppCompatActivity {
     private Button logoutButton;
     private FirebaseAuth mAuth;
     private String userid;
+    private TextView email;
+    private FirebaseUser myuser;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -45,6 +50,11 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         logoutButton=(Button) findViewById(R.id.buttonLogOut);
+        email=(TextView) findViewById(R.id.textViewEmail);
+
+        myuser= FirebaseAuth.getInstance().getCurrentUser();
+        email.setText(myuser.getEmail());
+
         mAuth= FirebaseAuth.getInstance();
         mAuth.getCurrentUser().getUid();
 

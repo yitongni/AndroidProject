@@ -2,6 +2,7 @@ package com.example.mybudget;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -32,15 +33,12 @@ public class BudgetActivity extends AppCompatActivity {
 
     private static final String TAG = "BudgetActivity";
     //private EditText editText;
-    private Button addBudgetButton;
+    private Button addBudgetButton, addCategoryButton;
     private TextView textView;
-    private double amount;
-    private String mybudget;
-    private Button addCategoryButton;
+
     private User user;
-    private DatabaseReference mDataBaseUsers;
-    private FirebaseAuth currentUser;
     private FirebaseUser myuser;
+    private DatabaseReference mDataBaseUsers;
 
     private ArrayList<Category> myCategory;
 
@@ -69,18 +67,24 @@ public class BudgetActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_budget);
+
+        //Set up buttons and textView
         textView=(TextView) findViewById(R.id.textViewBudget);
-//        editText=(EditText) findViewById(R.id.editTextBudget);
         addCategoryButton =(Button)findViewById(R.id.addCategory);
         addBudgetButton=(Button)findViewById(R.id.editBudget);
-        myuser= FirebaseAuth.getInstance().getCurrentUser();
-        //user=currentUser;
 
-        mDataBaseUsers= FirebaseDatabase.getInstance().getReference("/");
+        //Get currently log in user from database
+        myuser= FirebaseAuth.getInstance().getCurrentUser();
+
+        mDataBaseUsers= FirebaseDatabase.getInstance().getReference("/").child("users");
+//        currentUser=mDataBaseUsers.child(myuser.getUid());
+        //Log.d(TAG, currentUser.child("Category").getKey());
 
         user=new User();
         myCategory=new ArrayList<>();
 
+
+        //On Button Clicks
         addBudgetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,13 +93,6 @@ public class BudgetActivity extends AppCompatActivity {
                 startActivityForResult(myintent, REQUEST_CODE);
             }
         });
-
-//        editText.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                onBudgetClick(v);
-//            }
-//        });
 
         addCategoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,12 +103,41 @@ public class BudgetActivity extends AppCompatActivity {
             }
         });
 
+        //Navigation bar
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
-    protected void onActivityResult(int requestCode, int resultCode,
-                                    Intent data) {
+    //Retrieves data from database
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        Log.d(TAG, "OnStart " + myuser.getUid());
+
+        DatabaseReference databaseuser=mDataBaseUsers.child(myuser.getUid()).child("Category");
+        databaseuser.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                myCategory.clear();
+                Log.d(TAG, "Entering");
+                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Category newCat=postSnapshot.getValue(Category.class);
+                    //Log.d(TAG, r);
+                    Category newCategory=new Category(newCat.getCategory());
+                    user.addCategory(newCategory);
+                    myCategory.add(newCategory);
+                }
+                populateListView();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 // A contact was picked.  Here we will just display it
@@ -119,40 +145,13 @@ public class BudgetActivity extends AppCompatActivity {
                 if(data.hasExtra("Category")){
 
                     Category category=new Category(data.getStringExtra("Category"));
+                    myCategory.add(category);
                     user.addCategory(category);
-                    for(int i=0; i<user.getUserCategory().size(); i++)
-                    {
-                        Log.d(TAG, user.getUserCategory().get(i).getCategory());
-                    }
-                    //myCategory.add(category);
-                    populateListView();
-
-                    Log.d(TAG, "Adding to database");
-                    mDataBaseUsers.addListenerForSingleValueEvent(new ValueEventListener()
-                    {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            //iterating through all the nodes
-                            for (DataSnapshot postSnapshot : dataSnapshot.getChildren())
-                            {
-                                Log.d(TAG, "Entering");
-                                if (postSnapshot.getKey().equals(myuser.getUid()))
-                                {
-                                    User a_user = postSnapshot.getValue(User.class);
-                                    Log.d(TAG, a_user.getEmail());
-                                    mDataBaseUsers.child(a_user.getUserID()).child("Category").setValue(user.getUserCategory());
-                                }
-                            }
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+                    updateDatabase();
                 }
-                else if(data.hasExtra("Budget"))
-                {
-                    mybudget=data.getStringExtra("Budget");
+                else if(data.hasExtra("Budget")) {
+                    String mybudget = data.getStringExtra("Budget");
+                    double amount;
                     if (!(mybudget.trim().equals(""))) { //Make sure it not empty string
 
                         amount = Double.parseDouble(mybudget);
@@ -161,9 +160,40 @@ public class BudgetActivity extends AppCompatActivity {
                     }
                     user.setBudget(amount);
                     textView.setText(getString(R.string.budget, String.format("%.2f", amount)));
+                    updateDatabase();
                 }
             }
         }
+    }
+
+    //updatesDatabase
+    private void updateDatabase() {
+        Log.d(TAG, "Adding to database");
+        mDataBaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //iterating through all the nodes
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Log.d(TAG, "Entering");
+                    if (postSnapshot.getKey().equals(myuser.getUid())) {
+
+                        User a_user = postSnapshot.getValue(User.class);
+                        Log.d(TAG, a_user.getEmail());
+                        Log.d(TAG, Double.toString(a_user.getBudget()));
+                        for(int i=0; i<a_user.getUserCategory().size(); i++)
+                        {
+                            Log.d(TAG, a_user.getUserCategory().get(i).getCategory());
+                        }
+                        mDataBaseUsers.child(a_user.getUserID()).child("Category").setValue(myCategory);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
 //    private void init() {
@@ -197,7 +227,7 @@ public class BudgetActivity extends AppCompatActivity {
 
     public void populateListView()
     {
-        CategoryAdapter adapter=new CategoryAdapter(this, user.getUserCategory());
+        CategoryAdapter adapter=new CategoryAdapter(this, myCategory);
         ListView listView = (ListView) findViewById(R.id.list_item);
         listView.setAdapter(adapter);
     }

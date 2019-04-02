@@ -45,7 +45,8 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         firebaseAuth= FirebaseAuth.getInstance();
-        mDataBaseUsers=FirebaseDatabase.getInstance().getReference("/");
+        mDataBaseUsers=FirebaseDatabase.getInstance().getReference("/").child("users");
+
         myuser=new User();
 
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
@@ -97,13 +98,10 @@ public class SignUpActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = firebaseAuth.getCurrentUser();
-                            Log.d(TAG, "createUserWithEmail:success"+ user.getEmail() );
-                            Log.d(TAG, "createUserWithEmail:success"+ user.getUid() );
                             myuser.setEmail(user.getEmail());
                             myuser.setUserID(user.getUid());
                             mDataBaseUsers.child(user.getUid()).setValue(myuser);
                             finish();
-
                             Intent myintent=new Intent(SignUpActivity.this, ProfileActivity.class);
                             startActivity(myintent);
                         } else {
