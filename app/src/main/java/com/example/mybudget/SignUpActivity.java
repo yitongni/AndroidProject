@@ -100,6 +100,7 @@ public class SignUpActivity extends AppCompatActivity {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
                             myuser.setEmail(user.getEmail());
                             myuser.setUserID(user.getUid());
+                            myuser.setBudget(0.00);
                             mDataBaseUsers.child(user.getUid()).setValue(myuser);
                             finish();
                             Intent myintent=new Intent(SignUpActivity.this, ProfileActivity.class);

@@ -1,6 +1,7 @@
 package com.example.mybudget;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,15 +22,15 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
         }
 
         TextView description = convertView.findViewById(R.id.category);
-        TextView cost = convertView.findViewById(R.id.Cost);
+        TextView cost = convertView.findViewById(R.id.totalCost);
 
         Category category=getItem(position);
 
         String name= category.getCategory();
-        Double price= category.getCost();
+        Double price= category.getTotalCost();
 
         description.setText(name);
-        cost.setText(price.toString());
+        cost.setText("Total Spent: " + String.format("%.2f", price));
 
         return convertView;
     }

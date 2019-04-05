@@ -11,7 +11,7 @@
 
 
     <TextView
-        android:id="@+id/Cost"
+        android:id="@+id/totalCost"
         android:layout_width="match_parent"
         android:layout_toRightOf="@+id/category"
         android:layout_height="75dp"

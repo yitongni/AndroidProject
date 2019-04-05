@@ -21,6 +21,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ExpandableListView;
 
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,8 +43,7 @@ public class BudgetActivity extends AppCompatActivity {
     private Button addBudgetButton, addCategoryButton;
     private TextView textView;
 
-    private User user;
-
+    private User currentUser;
 
     private FirebaseUser myuser;
 
@@ -79,15 +82,15 @@ public class BudgetActivity extends AppCompatActivity {
         addBudgetButton=(Button)findViewById(R.id.editBudget);
 
         //Get currently log in user from database
+
+
         myuser= FirebaseAuth.getInstance().getCurrentUser();
 
-        mDataBaseUsers= FirebaseDatabase.getInstance().getReference("/").child("users");
-//        currentUser=mDataBaseUsers.child(myuser.getUid());
-        //Log.d(TAG, currentUser.child("Category").getKey());
+        //Gets specific user
+        mDataBaseUsers= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
 
-        user=new User();
+        currentUser=new User();
         myCategory=new ArrayList<>();
-
 
         //On Button Clicks
         addBudgetButton.setOnClickListener(new View.OnClickListener() {
@@ -111,6 +114,11 @@ public class BudgetActivity extends AppCompatActivity {
         //Navigation bar
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+
+        //retrieveCurrentUserInformation();
+        //showsChart();
+
     }
 
     //Retrieves data from database
@@ -118,26 +126,7 @@ public class BudgetActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "OnStart " + myuser.getUid());
-
-        DatabaseReference databaseuser=mDataBaseUsers.child(myuser.getUid()).child("Category");
-        databaseuser.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                myCategory.clear();
-                Log.d(TAG, "Entering");
-                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Category newCat=new Category(postSnapshot.getValue(Category.class).getCategory());
-                    newCat.setCost(postSnapshot.getValue(Category.class).getCost());
-                    user.addCategory(newCat);
-                    myCategory.add(newCat);
-                }
-                populateListView();
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        retrieveCurrentUserInformation();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -146,50 +135,60 @@ public class BudgetActivity extends AppCompatActivity {
                 // A contact was picked.  Here we will just display it
                 // to the user.
                 if(data.hasExtra("Category")){
-                    Category category=new Category(data.getStringExtra("Category"));
+                    String categoryName=data.getStringExtra("Category");
+
                     Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
-                    category.setCost(cost);
-                    myCategory.add(category);
-                    user.addCategory(category);
-                    updateCategoryDatabase(myCategory);
+
+                    //If User made the category already
+                    if(currentUser.containsCategory(categoryName)){
+                        currentUser.getUserCategory().get(currentUser.getCategoryPosition(categoryName)).addCost(cost);
+                    }
+                    else {
+                        Category category=new Category(categoryName);
+                        category.addCost(cost);
+                        //myCategory.add(category);
+                        currentUser.addCategory(category);
+                    }
+                    updateCategoryDatabase();
                 }
                 else if(data.hasExtra("Budget")) {
                     String mybudget = data.getStringExtra("Budget");
+                    Log.d(TAG, "Budget= " + mybudget);
                     double amount;
                     if (!(mybudget.trim().equals(""))) { //Make sure it not empty string
                         amount = Double.parseDouble(mybudget);
                     } else {
                         amount = 0.00; //Set amount to 0
                     }
-                    user.setBudget(amount);
-                    textView.setText(getString(R.string.budget, String.format("%.2f", amount)));
-                    updateBudgetDatabase(amount);
+                    Log.d(TAG, "Budget= " + amount);
+                    currentUser.setBudget(amount);
+                    //textView.setText(getString(R.string.budget, String.format("%.2f", amount)));
+                    updateBudgetDatabase();
                 }
             }
         }
     }
 
     //updatesCategoryDatabase
-    private void updateCategoryDatabase(final ArrayList<Category> myCategory) {
-        Log.d(TAG, "Adding to database");
-        mDataBaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void updateCategoryDatabase() {
+        Log.d(TAG, "Updating Category");
+        final DatabaseReference databaseuser3=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
+        databaseuser3.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //iterating through all the nodes
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                //for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     Log.d(TAG, "Entering");
-                    if (postSnapshot.getKey().equals(myuser.getUid())) {
 
-                        User a_user = postSnapshot.getValue(User.class);
-                        Log.d(TAG, a_user.getEmail());
-                        Log.d(TAG, Double.toString(a_user.getBudget()));
-                        for(int i=0; i<a_user.getUserCategory().size(); i++)
-                        {
-                            Log.d(TAG, a_user.getUserCategory().get(i).getCategory());
-                        }
-                        mDataBaseUsers.child(a_user.getUserID()).child("Category").setValue(myCategory);
+//                    User a_user = postSnapshot.getValue(User.class);
+//                    Log.d(TAG, a_user.getEmail());
+//                    Log.d(TAG, Double.toString(a_user.getBudget()));
+                    for(int i=0; i<currentUser.getUserCategory().size(); i++)
+                    {
+                        Log.d(TAG, currentUser.getUserCategory().get(i).getCategory());
                     }
-                }
+                    databaseuser3.child("Category").setValue(currentUser.getUserCategory());
+                //}
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -199,20 +198,16 @@ public class BudgetActivity extends AppCompatActivity {
     }
 
     //updateBudgetDatabase
-    private void updateBudgetDatabase(final double budget){
-        Log.d(TAG, "Adding to database");
-        mDataBaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void updateBudgetDatabase(){
+        Log.d(TAG, "Updating Budget");
+        final DatabaseReference databaseuser2=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
+        databaseuser2.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //iterating through all the nodes
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "Entering");
-                    if (postSnapshot.getKey().equals(myuser.getUid())) {
-
-                        User a_user = postSnapshot.getValue(User.class);
-                        mDataBaseUsers.child(a_user.getUserID()).child("budget").setValue(budget);
-                    }
-                }
+                Log.d(TAG, "Updating Budget2");
+                //User a_user = postSnapshot.getValue(User.class);
+                databaseuser2.child("budget").setValue(currentUser.getBudget());
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -220,11 +215,101 @@ public class BudgetActivity extends AppCompatActivity {
         });
     }
 
-    public void populateListView() {
-        CategoryAdapter adapter=new CategoryAdapter(this, myCategory);
+    public void populateListView(ArrayList<Category> categories) {
+        CategoryAdapter adapter=new CategoryAdapter(this, categories);
         ListView listView = (ListView) findViewById(R.id.list_item);
         listView.setAdapter(adapter);
+        textView.setText(getString(R.string.budget, String.format("%.2f", currentUser.getBudget())));
+
     }
+
+
+    public void retrieveCurrentUserInformation() {
+        Log.d(TAG, "Retrieving user information");
+
+        final DatabaseReference databaseuser=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
+
+        databaseuser.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                myCategory.clear();
+
+
+//                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+//                    if(postSnapshot.child("userID").getValue(String.class).equals(myuser.getUid())) {
+                        //Log.d(TAG, postSnapshot.child("email").getValue(String.class));
+                currentUser.setEmail(dataSnapshot.child("email").getValue(String.class));
+                Log.d(TAG, "Email: " + currentUser.getEmail());
+
+                currentUser.setUserID(dataSnapshot.child("userID").getValue(String.class));
+                Log.d(TAG, "UserID: " + currentUser.getUserID());
+
+                        //if(!(postSnapshot.child("budget").getValue(String.class).trim().equals(""))) {
+                String mybudget = dataSnapshot.child("budget").getValue(Double.class).toString();
+                currentUser.setBudget(Double.parseDouble(mybudget));
+                Log.d(TAG, "Budget: " + mybudget);
+
+//                        Log.d(TAG, "Budget" + currentUser.getBudget());
+//                    if(!mybudget.equals(null)) {
+//
+//                    }
+                        //}
+                //DataSnapshot postSnapShot=dataSnapshot.child("Category");
+                for(DataSnapshot postSnapShot : dataSnapshot.child("Category").getChildren()) {
+
+                    String categoryName=postSnapShot.getValue(Category.class).getCategory();
+                    ArrayList<Double> cost=postSnapShot.getValue(Category.class).getCost();
+                    if(currentUser.containsCategory(categoryName)){
+                        currentUser.getUserCategory().get(currentUser.getCategoryPosition(categoryName)).setCost(cost);
+                    }
+                    else {
+                        Category category=new Category(categoryName);
+                        category.setCost(cost);
+                        //myCategory.add(category);
+                        currentUser.addCategory(category);
+                    }
+//                    Category newCat = new Category(postSnapShot.getValue(Category.class).getCategory());
+//                    newCat.setCost(postSnapShot.getValue(Category.class).getCost());
+                    //currentUser.addCategory(newCat);
+                    //myCategory.add(newCat);
+                }
+//                        newCat.setCost(postSnapshot.getValue(Category.class).getCost());
+//
+                //currentUser.addCategory(newCat);
+                for (int i = 0; i < currentUser.getUserCategory().size(); i++) {
+                    Log.d(TAG, "Category" + currentUser.getUserCategory().get(i).getCategory());
+                    for (int j = 0; j < currentUser.getUserCategory().get(i).getCost().size(); j++) {
+                        Log.d(TAG, "Cost" + currentUser.getUserCategory().get(i).getCost().get(j));
+                    }
+                }
+                populateListView(currentUser.getUserCategory());
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+
+
+
+
+//    public void showsChart(){
+//        PieChart chart = (PieChart) findViewById(R.id.chart);
+//
+//        ArrayList<PieEntry> entries=new ArrayList<>();
+//        for(int i=0; i<myCategory.size(); i++)
+//        {
+//            entries.add(new PieEntry((float)((myCategory.get(i).getCost()/user.getBudget())), "Green"));
+//        }
+//
+//        PieDataSet set = new PieDataSet(entries, "Election Results");
+//        PieData data = new PieData(set);
+//        chart.setData(data);
+//        chart.invalidate(); // refresh
+//    }
 
 //    public void onBudgetClick(View view)
 //    {

@@ -5,9 +5,11 @@ import java.util.ArrayList;
 public class Category {
 
     private String category;
-    private Double cost;
+    private ArrayList<Double> cost=new ArrayList<>();
 
-    public Category(){}
+    public Category(){
+        //cost=new ArrayList<>();
+    }
 
     public Category(String name){
         this.category=name;
@@ -21,11 +23,24 @@ public class Category {
         this.category = category;
     }
 
-    public Double getCost() {
+    public ArrayList<Double> getCost() {
         return cost;
     }
 
-    public void setCost(Double cost) {
+    public void setCost(ArrayList<Double> cost) {
         this.cost = cost;
     }
+
+    public void addCost(Double mycost) {
+        cost.add(mycost);
+    }
+
+    public Double getTotalCost() {
+        Double totalCost=0.00;
+        for(int i=0; i<cost.size(); i++){
+            totalCost+=cost.get(i);
+        }
+        return totalCost;
+    }
+
 }
