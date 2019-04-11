@@ -21,10 +21,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ExpandableListView;
 
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -64,7 +60,11 @@ public class BudgetActivity extends AppCompatActivity {
                     startActivity(myintent);
                     return true;
                 case R.id.myBudget:
-
+                    return true;
+                case R.id.pieChart:
+                    Intent otherIntent =new Intent(BudgetActivity.this, PieChartActivity.class);
+                    otherIntent.putExtra("MyClass", currentUser);
+                    startActivity(otherIntent);
                     return true;
             }
             return false;

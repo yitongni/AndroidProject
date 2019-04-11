@@ -1,10 +1,11 @@
 package com.example.mybudget;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 
-public class User {
+public class User implements Serializable {
 
     private Double budget;
     private ArrayList<Category> userCategory;
@@ -64,5 +65,13 @@ public class User {
             }
         }
         return -1;
+    }
+
+    public Double getTotalSpent(){
+        Double totalSpent=0.00;
+        for(int i=0; i<userCategory.size(); i++){
+            totalSpent+=userCategory.get(i).getTotalCost();
+        }
+        return totalSpent;
     }
 }

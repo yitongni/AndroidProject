@@ -9,4 +9,8 @@
         android:id="@+id/myBudget"
         android:title="My Budget" />
 
+    <item
+        android:id="@+id/pieChart"
+        android:title="Pie Chart" />
+
 </menu>
