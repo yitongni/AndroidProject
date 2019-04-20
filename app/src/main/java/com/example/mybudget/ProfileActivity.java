@@ -72,11 +72,9 @@ public class ProfileActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
-    public void LogOut()
-    {
+    public void LogOut() {
         mAuth.signOut();
         finish();
-
         Intent myIntent= new Intent(ProfileActivity.this, MainActivity.class);
         startActivity(myIntent);
     }

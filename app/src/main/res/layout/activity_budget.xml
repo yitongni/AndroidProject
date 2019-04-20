@@ -27,13 +27,18 @@
         android:layout_marginStart="300dp"
         android:text="Add Category"/>
 
-    <ListView
-        android:id="@+id/list_item"
+    <!--<ListView-->
+        <!--android:id="@+id/list_item"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_marginTop="75dp"-->
+        <!--android:layout_marginBottom="60dp">-->
+    <!--</ListView>-->
+
+    <lecho.lib.hellocharts.view.PieChartView
+        android:id="@+id/chart"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="75dp"
-        android:layout_marginBottom="60dp">
-    </ListView>
+        android:layout_height="match_parent"/>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

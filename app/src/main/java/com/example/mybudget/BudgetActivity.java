@@ -2,6 +2,7 @@ package com.example.mybudget;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,6 +31,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import lecho.lib.hellocharts.listener.PieChartOnValueSelectListener;
+import lecho.lib.hellocharts.model.PieChartData;
+import lecho.lib.hellocharts.model.SliceValue;
+import lecho.lib.hellocharts.view.PieChartView;
 
 public class BudgetActivity extends AppCompatActivity {
 
@@ -39,7 +47,7 @@ public class BudgetActivity extends AppCompatActivity {
     private Button addBudgetButton, addCategoryButton;
     private TextView textView;
 
-    private User currentUser;
+    private User currentUser=new User();
 
     private FirebaseUser myuser;
 
@@ -61,11 +69,7 @@ public class BudgetActivity extends AppCompatActivity {
                     return true;
                 case R.id.myBudget:
                     return true;
-                case R.id.pieChart:
-                    Intent otherIntent =new Intent(BudgetActivity.this, PieChartActivity.class);
-                    otherIntent.putExtra("MyClass", currentUser);
-                    startActivity(otherIntent);
-                    return true;
+
             }
             return false;
         }
@@ -89,7 +93,7 @@ public class BudgetActivity extends AppCompatActivity {
         //Gets specific user
         mDataBaseUsers= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
 
-        currentUser=new User();
+        //currentUser=
         myCategory=new ArrayList<>();
 
         //On Button Clicks
@@ -114,7 +118,6 @@ public class BudgetActivity extends AppCompatActivity {
         //Navigation bar
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
 
         //retrieveCurrentUserInformation();
         //showsChart();
@@ -215,13 +218,11 @@ public class BudgetActivity extends AppCompatActivity {
         });
     }
 
-    public void populateListView(ArrayList<Category> categories) {
-        CategoryAdapter adapter=new CategoryAdapter(this, categories);
-        ListView listView = (ListView) findViewById(R.id.list_item);
-        listView.setAdapter(adapter);
-        textView.setText(getString(R.string.budget, String.format("%.2f", currentUser.getBudget())));
-
-    }
+//    public void populateListView(ArrayList<Category> categories) {
+//        CategoryAdapter adapter=new CategoryAdapter(this, categories);
+//        ListView listView = (ListView) findViewById(R.id.list_item);
+//        listView.setAdapter(adapter);
+//    }
 
 
     public void retrieveCurrentUserInformation() {
@@ -247,7 +248,7 @@ public class BudgetActivity extends AppCompatActivity {
                         //if(!(postSnapshot.child("budget").getValue(String.class).trim().equals(""))) {
                 String mybudget = dataSnapshot.child("budget").getValue(Double.class).toString();
                 currentUser.setBudget(Double.parseDouble(mybudget));
-                Log.d(TAG, "Budget: " + mybudget);
+                Log.d(TAG, "Budget: " + currentUser.getBudget());
 
 //                        Log.d(TAG, "Budget" + currentUser.getBudget());
 //                    if(!mybudget.equals(null)) {
@@ -282,39 +283,51 @@ public class BudgetActivity extends AppCompatActivity {
                         Log.d(TAG, "Cost" + currentUser.getUserCategory().get(i).getCost().get(j));
                     }
                 }
-                populateListView(currentUser.getUserCategory());
+                showPieChart();
+                //populateListView(currentUser.getUserCategory());
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-
     }
 
+    public void showPieChart(){
+        textView.setText(getString(R.string.budget, String.format("%.2f", currentUser.getBudget())));
+        Log.d(TAG, "Showing Pie Chart");
 
+        final PieChartView pieChartView = findViewById(R.id.chart);
 
+        final List<SliceValue> pieData = new ArrayList<>();
 
+        Double spent=currentUser.getTotalSpent();
+        float totalSpent = spent.floatValue();
+        for(int i=0; i<currentUser.getUserCategory().size(); i++)
+        {
+            Double cost=currentUser.getUserCategory().get(i).getTotalCost();
+            float totalCost = cost.floatValue();
+            Random rnd = new Random();
+            int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            pieData.add(new SliceValue(totalCost, color).setLabel(currentUser.getUserCategory().get(i).getCategory()+": "+ String.valueOf(totalCost)));
+        }
+        final PieChartData pieChartData = new PieChartData(pieData);
+        pieChartData.setHasLabels(true).setValueLabelTextSize(20);
+        pieChartView.setPieChartData(pieChartData);
+        pieChartView.setOnValueTouchListener(new PieChartOnValueSelectListener() {
+            @Override
+            public void onValueSelected(int arcIndex, SliceValue value) {
+                Log.d(TAG, "You pressed: " + currentUser.getUserCategory().get(arcIndex).getCategory());
+                Intent newIntent=new Intent(BudgetActivity.this, CategoryActivity.class);
+                newIntent.putExtra("Category", currentUser.getUserCategory().get(arcIndex));
+                startActivity(newIntent);
+            }
 
-//    public void showsChart(){
-//        PieChart chart = (PieChart) findViewById(R.id.chart);
-//
-//        ArrayList<PieEntry> entries=new ArrayList<>();
-//        for(int i=0; i<myCategory.size(); i++)
-//        {
-//            entries.add(new PieEntry((float)((myCategory.get(i).getCost()/user.getBudget())), "Green"));
-//        }
-//
-//        PieDataSet set = new PieDataSet(entries, "Election Results");
-//        PieData data = new PieData(set);
-//        chart.setData(data);
-//        chart.invalidate(); // refresh
-//    }
+            @Override
+            public void onValueDeselected() {
 
-//    public void onBudgetClick(View view)
-//    {
-////        textView.setVisibility(View.GONE);
-////        editText.setVisibility(View.VISIBLE);
-//        init();
-//    }
+            }
+        });
+
+    }
 }

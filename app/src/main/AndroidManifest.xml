@@ -19,11 +19,10 @@
         <activity android:name=".SignUpActivity"></activity>
         <activity android:name=".ProfileActivity"></activity>
         <activity android:name=".BudgetActivity"></activity>
-        <activity android:name=".CategoryFillActivity"></activity>
         <activity android:name=".PopupActivity"
             android:theme="@style/AppTheme.Popup">
         </activity>
-        <activity android:name=".PieChartActivity"></activity>
+        <activity android:name=".CategoryActivity"></activity>
     </application>
 
 </manifest>
