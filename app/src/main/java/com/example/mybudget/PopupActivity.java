@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -20,12 +21,18 @@ public class PopupActivity extends Activity {
     private Spinner spinner1;
     private EditText cat_name, budget, categoryCost;
     private String category, butgetCost, catCost;
+    private String [] categorySpinner={"Food", "Rent"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup);
 
-        cat_name=(EditText)findViewById(R.id.categoryName);
+        spinner1=(Spinner)findViewById(R.id.categorySpinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, categorySpinner);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner1.setAdapter(adapter);
+
         budget=(EditText)findViewById(R.id.editTextBudget);
         categoryCost=(EditText)findViewById(R.id.categoryCost);
 
@@ -35,7 +42,7 @@ public class PopupActivity extends Activity {
             int intValue = myIntent.getIntExtra("ButtonID", 0);
             if(intValue==R.id.editBudget)
             {
-                cat_name.setVisibility(View.GONE);
+                spinner1.setVisibility(View.GONE);
                 categoryCost.setVisibility(View.GONE);
                 budget.setVisibility(View.VISIBLE);
 
@@ -61,18 +68,17 @@ public class PopupActivity extends Activity {
             else if(intValue==R.id.addCategory)
             {
                 budget.setVisibility(View.GONE);
-                cat_name.setVisibility(View.VISIBLE);
+                spinner1.setVisibility(View.VISIBLE);
                 categoryCost.setVisibility(View.VISIBLE);
 
                 btn_save=(Button)findViewById(R.id.btn_save);
                 btn_save.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        category = cat_name.getText().toString();
+                        category = spinner1.getSelectedItem().toString();
                         catCost= categoryCost.getText().toString();
-                        if (!(category.trim().equals(""))) { //Make sure it not empty string
+                        if (!(category.trim().equals("")) && !(catCost.trim().equals(""))) { //Make sure it not empty string
                             Log.d(TAG, "onClick: Name" + category);
-
                             Intent intent = new Intent();
                             intent.putExtra("Category", category);
                             intent.putExtra("CategoryCost", catCost);
@@ -87,26 +93,6 @@ public class PopupActivity extends Activity {
                 });
             }
         }
-
-//        btn_save=(Button)findViewById(R.id.btn_save);
-//        btn_save.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                category = cat_name.getText().toString();
-//                if (!(category.trim().equals(""))) { //Make sure it not empty string
-//                    Log.d(TAG, "onClick: Name" + category);
-//
-//                    Intent intent = new Intent();
-//                    intent.putExtra("DATA", category);
-//                    setResult(RESULT_OK, intent);
-//                    finish();
-//                }
-//                else
-//                {
-//                    Toast.makeText(PopupActivity.this, "Please Enter something.", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
 
         DisplayMetrics dm= new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);

@@ -17,15 +17,19 @@ public class Category implements Serializable {
     }
 
     public String getCategory() {
-        return category;
+        return this.category;
     }
 
     public void setCategory(String category) {
         this.category = category;
     }
 
+    public void deleteCost(int position){
+        cost.remove(position);
+    }
+
     public ArrayList<Double> getCost() {
-        return cost;
+        return this.cost;
     }
 
     public void setCost(ArrayList<Double> cost) {
@@ -33,13 +37,13 @@ public class Category implements Serializable {
     }
 
     public void addCost(Double mycost) {
-        cost.add(mycost);
+        this.cost.add(mycost);
     }
 
     public Double getTotalCost() {
         Double totalCost=0.00;
-        for(int i=0; i<cost.size(); i++){
-            totalCost+=cost.get(i);
+        for(int i=0; i<this.cost.size(); i++){
+            totalCost+=this.cost.get(i);
         }
         return totalCost;
     }

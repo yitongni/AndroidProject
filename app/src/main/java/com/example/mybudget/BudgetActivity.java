@@ -28,10 +28,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import lecho.lib.hellocharts.listener.PieChartOnValueSelectListener;
@@ -47,19 +50,19 @@ public class BudgetActivity extends AppCompatActivity {
     private Button addBudgetButton, addCategoryButton;
     private TextView textView;
 
-    private User currentUser=new User();
+    private User currentUser;
 
     private FirebaseUser myuser;
 
     private DatabaseReference mDataBaseUsers;
+    private HashMap<String, Category> userExpenses;
     private ArrayList<Category> myCategory;
 
     static final int REQUEST_CODE = 0;
 
     //Navigation Bar
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener()
-    {
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
@@ -84,10 +87,10 @@ public class BudgetActivity extends AppCompatActivity {
         textView=(TextView) findViewById(R.id.textViewBudget);
         addCategoryButton =(Button)findViewById(R.id.addCategory);
         addBudgetButton=(Button)findViewById(R.id.editBudget);
+        currentUser=new User();
+        userExpenses=new HashMap<>();
 
         //Get currently log in user from database
-
-
         myuser= FirebaseAuth.getInstance().getCurrentUser();
 
         //Gets specific user
@@ -135,23 +138,13 @@ public class BudgetActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                // A contact was picked.  Here we will just display it
-                // to the user.
+
                 if(data.hasExtra("Category")){
                     String categoryName=data.getStringExtra("Category");
 
                     Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
 
-                    //If User made the category already
-                    if(currentUser.containsCategory(categoryName)){
-                        currentUser.getUserCategory().get(currentUser.getCategoryPosition(categoryName)).addCost(cost);
-                    }
-                    else {
-                        Category category=new Category(categoryName);
-                        category.addCost(cost);
-                        //myCategory.add(category);
-                        currentUser.addCategory(category);
-                    }
+                    currentUser.addCategory(categoryName, cost);
                     updateCategoryDatabase();
                 }
                 else if(data.hasExtra("Budget")) {
@@ -172,30 +165,19 @@ public class BudgetActivity extends AppCompatActivity {
         }
     }
 
-    //updatesCategoryDatabase
+    //updatesCategoryDatabase when new expenses is added
     private void updateCategoryDatabase() {
         Log.d(TAG, "Updating Category");
         final DatabaseReference databaseuser3=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
         databaseuser3.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //iterating through all the nodes
-                //for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Log.d(TAG, "Entering");
-
-//                    User a_user = postSnapshot.getValue(User.class);
-//                    Log.d(TAG, a_user.getEmail());
-//                    Log.d(TAG, Double.toString(a_user.getBudget()));
-                    for(int i=0; i<currentUser.getUserCategory().size(); i++)
-                    {
-                        Log.d(TAG, currentUser.getUserCategory().get(i).getCategory());
-                    }
-                    databaseuser3.child("Category").setValue(currentUser.getUserCategory());
-                //}
+                Log.d(TAG, "Updating");
+                databaseuser3.child("Category").setValue(currentUser.getUserCategory());
+                databaseuser3.child("totalSpent").setValue(currentUser.getTotalSpent());
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
     }
@@ -218,13 +200,6 @@ public class BudgetActivity extends AppCompatActivity {
         });
     }
 
-//    public void populateListView(ArrayList<Category> categories) {
-//        CategoryAdapter adapter=new CategoryAdapter(this, categories);
-//        ListView listView = (ListView) findViewById(R.id.list_item);
-//        listView.setAdapter(adapter);
-//    }
-
-
     public void retrieveCurrentUserInformation() {
         Log.d(TAG, "Retrieving user information");
 
@@ -233,58 +208,38 @@ public class BudgetActivity extends AppCompatActivity {
         databaseuser.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                myCategory.clear();
+                userExpenses.clear();
+                currentUser=new User();
 
-
-//                for(DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-//                    if(postSnapshot.child("userID").getValue(String.class).equals(myuser.getUid())) {
-                        //Log.d(TAG, postSnapshot.child("email").getValue(String.class));
                 currentUser.setEmail(dataSnapshot.child("email").getValue(String.class));
                 Log.d(TAG, "Email: " + currentUser.getEmail());
 
                 currentUser.setUserID(dataSnapshot.child("userID").getValue(String.class));
                 Log.d(TAG, "UserID: " + currentUser.getUserID());
 
-                        //if(!(postSnapshot.child("budget").getValue(String.class).trim().equals(""))) {
                 String mybudget = dataSnapshot.child("budget").getValue(Double.class).toString();
                 currentUser.setBudget(Double.parseDouble(mybudget));
                 Log.d(TAG, "Budget: " + currentUser.getBudget());
 
-//                        Log.d(TAG, "Budget" + currentUser.getBudget());
-//                    if(!mybudget.equals(null)) {
-//
-//                    }
-                        //}
-                //DataSnapshot postSnapShot=dataSnapshot.child("Category");
-                for(DataSnapshot postSnapShot : dataSnapshot.child("Category").getChildren()) {
+                //Gets the categeory
+                GenericTypeIndicator<HashMap<String, Category>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Category>>(){};
+                userExpenses=dataSnapshot.child("Category").getValue(genericTypeIndicator);
 
-                    String categoryName=postSnapShot.getValue(Category.class).getCategory();
-                    ArrayList<Double> cost=postSnapShot.getValue(Category.class).getCost();
-                    if(currentUser.containsCategory(categoryName)){
-                        currentUser.getUserCategory().get(currentUser.getCategoryPosition(categoryName)).setCost(cost);
-                    }
-                    else {
-                        Category category=new Category(categoryName);
-                        category.setCost(cost);
-                        //myCategory.add(category);
-                        currentUser.addCategory(category);
-                    }
-//                    Category newCat = new Category(postSnapShot.getValue(Category.class).getCategory());
-//                    newCat.setCost(postSnapShot.getValue(Category.class).getCost());
-                    //currentUser.addCategory(newCat);
-                    //myCategory.add(newCat);
-                }
-//                        newCat.setCost(postSnapshot.getValue(Category.class).getCost());
-//
-                //currentUser.addCategory(newCat);
-                for (int i = 0; i < currentUser.getUserCategory().size(); i++) {
-                    Log.d(TAG, "Category" + currentUser.getUserCategory().get(i).getCategory());
-                    for (int j = 0; j < currentUser.getUserCategory().get(i).getCost().size(); j++) {
-                        Log.d(TAG, "Cost" + currentUser.getUserCategory().get(i).getCost().get(j));
+                //Copys the expenses to current user information
+                for (Map.Entry<String, Category> entry : userExpenses.entrySet()) {
+
+                    String key = entry.getKey();
+                    Log.d(TAG, "KEY: " + key);
+
+                    Category value = new Category(entry.getValue().getCategory());
+                    value.setCost(entry.getValue().getCost());
+
+                    for(int i=0; i<value.getCost().size(); i++){
+                        Log.d(TAG, "Cost: " + value.getCost().get(i));
+                        currentUser.addCategory(key, value.getCost().get(i));
                     }
                 }
                 showPieChart();
-                //populateListView(currentUser.getUserCategory());
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -303,13 +258,15 @@ public class BudgetActivity extends AppCompatActivity {
 
         Double spent=currentUser.getTotalSpent();
         float totalSpent = spent.floatValue();
-        for(int i=0; i<currentUser.getUserCategory().size(); i++)
-        {
-            Double cost=currentUser.getUserCategory().get(i).getTotalCost();
+
+        //Iterate map and get each value for pie chart
+        for (Map.Entry<String, Category> entry : currentUser.getUserCategory().entrySet()) {
+            Log.d(TAG, "Category: "+entry.getKey());
+            Double cost=entry.getValue().getTotalCost();
             float totalCost = cost.floatValue();
             Random rnd = new Random();
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-            pieData.add(new SliceValue(totalCost, color).setLabel(currentUser.getUserCategory().get(i).getCategory()+": "+ String.valueOf(totalCost)));
+            pieData.add(new SliceValue(totalCost, color).setLabel(entry.getKey()+": "+ String.valueOf(totalCost)));
         }
         final PieChartData pieChartData = new PieChartData(pieData);
         pieChartData.setHasLabels(true).setValueLabelTextSize(20);
@@ -317,9 +274,14 @@ public class BudgetActivity extends AppCompatActivity {
         pieChartView.setOnValueTouchListener(new PieChartOnValueSelectListener() {
             @Override
             public void onValueSelected(int arcIndex, SliceValue value) {
-                Log.d(TAG, "You pressed: " + currentUser.getUserCategory().get(arcIndex).getCategory());
+                String string=String.copyValueOf(value.getLabelAsChars());
+                int iend = string.indexOf(":"); //Finds the first occurrence of ":"
+
+                String subString= string.substring(0 , iend); //this will give category
+                Log.d(TAG, "You pressed: " + subString);
+
                 Intent newIntent=new Intent(BudgetActivity.this, CategoryActivity.class);
-                newIntent.putExtra("Category", currentUser.getUserCategory().get(arcIndex));
+                newIntent.putExtra("Category", currentUser.getUserCategory().get(subString));
                 startActivity(newIntent);
             }
 

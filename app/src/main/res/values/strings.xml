@@ -2,4 +2,5 @@
     <string name="app_name">MyBudget</string>
     <string name="budget">Budget: $%1$s</string>
     <string name="totalCost">Total Spent: $%1$s</string>
+
 </resources>
