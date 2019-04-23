@@ -51,12 +51,9 @@ public class BudgetActivity extends AppCompatActivity {
     private TextView textView;
 
     private User currentUser;
-
     private FirebaseUser myuser;
 
-    private DatabaseReference mDataBaseUsers;
     private HashMap<String, Category> userExpenses;
-    private ArrayList<Category> myCategory;
 
     static final int REQUEST_CODE = 0;
 
@@ -83,21 +80,16 @@ public class BudgetActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_budget);
 
+        currentUser=new User();
+        userExpenses=new HashMap<>();
+
         //Set up buttons and textView
         textView=(TextView) findViewById(R.id.textViewBudget);
         addCategoryButton =(Button)findViewById(R.id.addCategory);
         addBudgetButton=(Button)findViewById(R.id.editBudget);
-        currentUser=new User();
-        userExpenses=new HashMap<>();
 
         //Get currently log in user from database
         myuser= FirebaseAuth.getInstance().getCurrentUser();
-
-        //Gets specific user
-        mDataBaseUsers= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
-
-        //currentUser=
-        myCategory=new ArrayList<>();
 
         //On Button Clicks
         addBudgetButton.setOnClickListener(new View.OnClickListener() {
@@ -189,9 +181,7 @@ public class BudgetActivity extends AppCompatActivity {
         databaseuser2.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //iterating through all the nodes
                 Log.d(TAG, "Updating Budget2");
-                //User a_user = postSnapshot.getValue(User.class);
                 databaseuser2.child("budget").setValue(currentUser.getBudget());
             }
             @Override
@@ -204,7 +194,6 @@ public class BudgetActivity extends AppCompatActivity {
         Log.d(TAG, "Retrieving user information");
 
         final DatabaseReference databaseuser=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
-
         databaseuser.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

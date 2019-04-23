@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -15,14 +16,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CategoryActivity extends AppCompatActivity {
 
     private static final String TAG = "CategoryActivity";
     private TextView mTextView;
-    private Category mCat;
     private FirebaseUser myuser;
+    private Category mCat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +46,7 @@ public class CategoryActivity extends AppCompatActivity {
         Log.d(TAG, "Initiating");
         Intent intent = getIntent();
         if (intent.hasExtra("Category")) {
-            mCat = (Category) intent.getSerializableExtra("Category");
+            mCat = (Category)intent.getSerializableExtra("Category");
         }
         populateView();
     }
@@ -48,7 +54,7 @@ public class CategoryActivity extends AppCompatActivity {
     //Delete on user touch
     private void deleteCost(int position){
         Log.d(TAG, "Deleting");
-        DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("/").child("user").child(myuser.getUid()).child("Category");
+        mCat.getCost().remove(position);
     }
 
     private void populateView(){
