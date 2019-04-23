@@ -2,6 +2,8 @@ package com.example.mybudget;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -29,7 +32,10 @@ public class CategoryActivity extends AppCompatActivity {
     private TextView mTextView;
     private FirebaseUser myuser;
     private Category mCat;
-
+    private HashMap<String, Category> expenses;
+    private ArrayList<Double> cost=new ArrayList<Double>();
+    private Category myCat;
+    private CategoryAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +43,8 @@ public class CategoryActivity extends AppCompatActivity {
 
         mTextView=(TextView)findViewById(R.id.textViewCategory);
         myuser= FirebaseAuth.getInstance().getCurrentUser();
+        expenses=new HashMap<>();
         init();
-
     }
 
     //Getting Category
@@ -48,13 +54,39 @@ public class CategoryActivity extends AppCompatActivity {
         if (intent.hasExtra("Category")) {
             mCat = (Category)intent.getSerializableExtra("Category");
         }
-        populateView();
+        retrieveInformation();
     }
 
     //Delete on user touch
     private void deleteCost(int position){
         Log.d(TAG, "Deleting");
-        mCat.getCost().remove(position);
+        cost.remove(position);
+        adapter.notifyDataSetChanged();
+//        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(mCat.getCategory()).child("cost");
+//        databaseReference.removeValue()
+    }
+
+    private void retrieveInformation(){
+        Query query= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(mCat.getCategory()).child("cost");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Retrieving from database");
+
+                GenericTypeIndicator<ArrayList<Double>> genericTypeIndicator = new GenericTypeIndicator<ArrayList<Double>>(){};
+                cost=dataSnapshot.getValue(genericTypeIndicator);
+                for(int i=0; i<cost.size(); i++){
+                    Log.d(TAG, cost.get(i).toString());
+                }
+                populateView();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private void populateView(){
@@ -62,7 +94,7 @@ public class CategoryActivity extends AppCompatActivity {
 
         mTextView.setText(mCat.getCategory());
 
-        CategoryAdapter adapter=new CategoryAdapter(this, mCat.getCost());
+        adapter=new CategoryAdapter(this, cost);
 
         ListView listView = (ListView) findViewById(R.id.costListView);
         listView.setAdapter(adapter);
@@ -73,5 +105,6 @@ public class CategoryActivity extends AppCompatActivity {
                 deleteCost(position);
             }
         });
+
     }
 }
