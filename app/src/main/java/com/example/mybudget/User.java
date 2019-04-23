@@ -41,8 +41,8 @@ public class User implements Serializable {
         this.userID = userID;
     }
 
-    public void addCategory(String categoryName, String description, Double cost){
-        Category category=new Category(description, cost);
+    public void addCategory(String categoryName, String description, Double cost, String id){
+        Category category=new Category(description, cost, id, categoryName);
         ArrayList<Category> categories=new ArrayList<>();
         categories.add(category);
         if(this.userExpenses.get(categoryName)==null){

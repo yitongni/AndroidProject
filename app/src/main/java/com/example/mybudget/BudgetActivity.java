@@ -133,8 +133,7 @@ public class BudgetActivity extends AppCompatActivity {
                     String description=data.getStringExtra("Description");
                     Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
 
-                    currentUser.addCategory(categoryName, description, cost);
-                    updateCategoryDatabase();
+                    updateCategoryDatabase(categoryName, description, cost);
                 }
                 else if(data.hasExtra("Budget")) {
                     String mybudget = data.getStringExtra("Budget");
@@ -154,15 +153,21 @@ public class BudgetActivity extends AppCompatActivity {
     }
 
     //updatesCategoryDatabase when new expenses is added
-    private void updateCategoryDatabase() {
+    private void updateCategoryDatabase(final String name, final String description, final Double cost) {
         Log.d(TAG, "Updating Category");
         final DatabaseReference databaseuser3=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
         databaseuser3.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Updating");
-                databaseuser3.child("Category").setValue(currentUser.getUserCategory());
+
+                Log.d(TAG, databaseuser3.push().getKey());
+                String id=databaseuser3.push().getKey();
+                Category category=new Category(description, cost, id, name);
+                currentUser.addCategory(name, description, cost, id);
+                databaseuser3.child("Category").child(name).child(id).setValue(category);
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -206,10 +211,30 @@ public class BudgetActivity extends AppCompatActivity {
                 Log.d(TAG, "Budget: " + currentUser.getBudget());
 
                 //Gets the categeory
-                GenericTypeIndicator<HashMap<String, ArrayList<Category>>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, ArrayList<Category>>>(){};
-                userExpenses=dataSnapshot.child("Category").getValue(genericTypeIndicator);
+                for(DataSnapshot postSnapShot : dataSnapshot.child("Category").getChildren()){
+                    for(DataSnapshot postSnapShot2 : postSnapShot.getChildren()){
+                        Log.d(TAG, "Retrieving");
+                        Log.d(TAG, "Food: " + postSnapShot2.getValue(Category.class).getCategory());
+                        Log.d(TAG, "Description: " + postSnapShot2.getValue(Category.class).getDescription());
+                        Log.d(TAG, "Cost: " + postSnapShot2.getValue(Category.class).getCost());
+                        Log.d(TAG, "ID: " + postSnapShot2.getValue(Category.class).getId());
 
-                //Copys the expenses to current user information
+                        Category category=new Category(postSnapShot2.getValue(Category.class).getDescription(),
+                                postSnapShot2.getValue(Category.class).getCost(), postSnapShot2.getValue(Category.class).getId(),
+                                postSnapShot2.getValue(Category.class).getCategory());
+
+                        ArrayList<Category> mylist =new ArrayList<>();
+                        mylist.add(category);
+                        if(userExpenses.get(category.getCategory())==null){
+                            Log.d(TAG, "Adding to map");
+                            userExpenses.put(category.getCategory(),  mylist);
+                        }
+                        else {
+                            Log.d(TAG, "Adding to existing map");
+                            userExpenses.get(category.getCategory()).add(category);
+                        }
+                    }
+                }
                 for (Map.Entry<String, ArrayList<Category>> entry : userExpenses.entrySet()) {
 
                     String key = entry.getKey();
@@ -218,7 +243,7 @@ public class BudgetActivity extends AppCompatActivity {
                     ArrayList<Category> categories=entry.getValue();
                     for(int i=0; i<categories.size(); i++){
                         Log.d(TAG, "Cost: " + categories.get(i).getCost());
-                        currentUser.addCategory(key, categories.get(i).getCategory(), categories.get(i).getCost());
+                        currentUser.addCategory(key, categories.get(i).getDescription(), categories.get(i).getCost(), categories.get(i).getId());
                     }
                 }
                 showPieChart();
@@ -246,6 +271,7 @@ public class BudgetActivity extends AppCompatActivity {
             for(int i=0; i<categories.size(); i++){
                 cost+=categories.get(i).getCost();
             }
+            Log.d(TAG, "Cost: " + cost);
             float totalCost = cost.floatValue();
             Random rnd = new Random();
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));

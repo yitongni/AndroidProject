@@ -60,14 +60,45 @@ public class CategoryActivity extends AppCompatActivity {
     }
 
     //Delete on user touch
-    private void deleteCost(int position){
+    private void deleteCost(final int position){
         Log.d(TAG, "Deleting");
-        cost.remove(position);
-        adapter.notifyDataSetChanged();
-//        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(mCat.getCategory()).child("cost");
-//        databaseReference.removeValue()
-    }
+        //cost.remove(position);
+        final String description=categories.get(position).getDescription();
+        final Double cost=categories.get(position).getCost();
+        final String id=categories.get(position).getId();
+        final DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(category).child(id);
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                databaseReference.removeValue();
+//                for(DataSnapshot postSnapShot : dataSnapshot.getChildren()){
+//                    Log.d(TAG, "Deleting: " + postSnapShot.child("category").getValue(String.class));
+//                    Log.d(TAG, "Deleting: " + postSnapShot.child("cost").getValue(Double.class).toString());
+//
+//                    if(postSnapShot.child("category").getValue(String.class).equals(description)){
+//                        if(postSnapShot.child("cost").getValue(Double.class).equals(cost)){
+//                            Log.d(TAG, "Deleting: " + postSnapShot.child("category").getValue(String.class));
+//                            Log.d(TAG, "Deleting: " + postSnapShot.child("cost").getValue(Double.class).toString());
+//                            databaseReference.setValue(categories);
+//                            //postSnapShot.child("cost").getRef().removeValue();
+//                            break;
+//                        }
+//                    }
+//                }
+                adapter.notifyDataSetChanged();
+
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e(TAG, "onCancelled", databaseError.toException());
+            }
+        });
+
+    }
+//
     private void retrieveInformation(){
         Query query= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(category);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -75,13 +106,14 @@ public class CategoryActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Retrieving from database");
                 for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
-                    Category category=new Category(postSnapshot.child("category").getValue(String.class), postSnapshot.child("cost").getValue(Double.class));
+                    Category category=new Category(postSnapshot.child("description").getValue(String.class), postSnapshot.child("cost").getValue(Double.class), postSnapshot.child("id").getValue(String.class), postSnapshot.child("category").getValue(String.class));
                     categories.add(category);
-
-                    for(int i=0; i<categories.size(); i++){
-                        Log.d(TAG, categories.get(i).getCategory());
-                        Log.d(TAG, categories.get(i).getCost().toString());
-                    }
+                }
+                for(int i=0; i<categories.size(); i++){
+                    Log.d(TAG, categories.get(i).getCategory());
+                    Log.d(TAG, categories.get(i).getCost().toString());
+                    Log.d(TAG, categories.get(i).getDescription());
+                    Log.d(TAG, categories.get(i).getId());
                 }
                 populateView();
             }
@@ -108,6 +140,7 @@ public class CategoryActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 deleteCost(position);
+                categories.remove(position);
             }
         });
 

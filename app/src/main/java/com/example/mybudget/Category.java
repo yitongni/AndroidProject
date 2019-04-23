@@ -5,22 +5,45 @@ import java.util.ArrayList;
 
 public class Category implements Serializable {
 
-    private String category;
+    private String description;
     private Double cost;
+    private String id;
+    private String category;
 
     public Category(){}
 
-    public Category(String name, Double cost1){
-        this.category=name;
+    public Category(String name, Double cost1, String id1, String category1){
+        this.description=name;
         this.cost=cost1;
+        this.id=id1;
+        this.category=category1;
     }
 
-    public String getCategory() {
-        return this.category;
+    public String getDescription() {
+        return this.description;
     }
 
     public Double getCost() {
         return this.cost;
     }
 
+    public String getId(){
+        return this.id;
+    }
+
+    public String getCategory(){
+        return this.category;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
