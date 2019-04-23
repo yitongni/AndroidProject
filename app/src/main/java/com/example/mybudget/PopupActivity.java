@@ -19,8 +19,8 @@ public class PopupActivity extends Activity {
     private static final String TAG = "PopupActivity";
     private Button btn_save;
     private Spinner spinner1;
-    private EditText cat_name, budget, categoryCost;
-    private String category, butgetCost, catCost;
+    private EditText description, budget, categoryCost;
+    private String category, butgetCost, catCost, categoryDescription;
     private String [] categorySpinner={"Food", "Rent"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,7 @@ public class PopupActivity extends Activity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner1.setAdapter(adapter);
 
+        description=(EditText)findViewById(R.id.description);
         budget=(EditText)findViewById(R.id.editTextBudget);
         categoryCost=(EditText)findViewById(R.id.categoryCost);
 
@@ -42,6 +43,7 @@ public class PopupActivity extends Activity {
             int intValue = myIntent.getIntExtra("ButtonID", 0);
             if(intValue==R.id.editBudget)
             {
+                description.setVisibility(View.GONE);
                 spinner1.setVisibility(View.GONE);
                 categoryCost.setVisibility(View.GONE);
                 budget.setVisibility(View.VISIBLE);
@@ -58,8 +60,7 @@ public class PopupActivity extends Activity {
                             setResult(RESULT_OK, intent);
                             finish();
                         }
-                        else
-                        {
+                        else {
                             Toast.makeText(PopupActivity.this, "Please Enter something.", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -70,6 +71,7 @@ public class PopupActivity extends Activity {
                 budget.setVisibility(View.GONE);
                 spinner1.setVisibility(View.VISIBLE);
                 categoryCost.setVisibility(View.VISIBLE);
+                description.setVisibility(View.VISIBLE);
 
                 btn_save=(Button)findViewById(R.id.btn_save);
                 btn_save.setOnClickListener(new View.OnClickListener() {
@@ -77,16 +79,17 @@ public class PopupActivity extends Activity {
                     public void onClick(View v) {
                         category = spinner1.getSelectedItem().toString();
                         catCost= categoryCost.getText().toString();
-                        if (!(category.trim().equals("")) && !(catCost.trim().equals(""))) { //Make sure it not empty string
+                        categoryDescription = description.getText().toString();
+                        if (!(category.trim().equals("")) && !(catCost.trim().equals("")) && !(categoryDescription.trim().equals(""))) { //Make sure to enter every field
                             Log.d(TAG, "onClick: Name" + category);
                             Intent intent = new Intent();
                             intent.putExtra("Category", category);
                             intent.putExtra("CategoryCost", catCost);
+                            intent.putExtra("Description", categoryDescription);
                             setResult(RESULT_OK, intent);
                             finish();
                         }
-                        else
-                        {
+                        else {
                             Toast.makeText(PopupActivity.this, "Please Enter something.", Toast.LENGTH_SHORT).show();
                         }
                     }

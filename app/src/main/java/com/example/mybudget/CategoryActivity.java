@@ -33,6 +33,8 @@ public class CategoryActivity extends AppCompatActivity {
     private FirebaseUser myuser;
     private Category mCat;
     private HashMap<String, Category> expenses;
+    private String category;
+    private ArrayList<Category> categories=new ArrayList<>();
     private ArrayList<Double> cost=new ArrayList<Double>();
     private Category myCat;
     private CategoryAdapter adapter;
@@ -52,7 +54,7 @@ public class CategoryActivity extends AppCompatActivity {
         Log.d(TAG, "Initiating");
         Intent intent = getIntent();
         if (intent.hasExtra("Category")) {
-            mCat = (Category)intent.getSerializableExtra("Category");
+            category = intent.getStringExtra("Category");
         }
         retrieveInformation();
     }
@@ -67,16 +69,19 @@ public class CategoryActivity extends AppCompatActivity {
     }
 
     private void retrieveInformation(){
-        Query query= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(mCat.getCategory()).child("cost");
+        Query query= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(category);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Retrieving from database");
+                for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
+                    Category category=new Category(postSnapshot.child("category").getValue(String.class), postSnapshot.child("cost").getValue(Double.class));
+                    categories.add(category);
 
-                GenericTypeIndicator<ArrayList<Double>> genericTypeIndicator = new GenericTypeIndicator<ArrayList<Double>>(){};
-                cost=dataSnapshot.getValue(genericTypeIndicator);
-                for(int i=0; i<cost.size(); i++){
-                    Log.d(TAG, cost.get(i).toString());
+                    for(int i=0; i<categories.size(); i++){
+                        Log.d(TAG, categories.get(i).getCategory());
+                        Log.d(TAG, categories.get(i).getCost().toString());
+                    }
                 }
                 populateView();
             }
@@ -92,9 +97,9 @@ public class CategoryActivity extends AppCompatActivity {
     private void populateView(){
         Log.d(TAG, "Populating View");
 
-        mTextView.setText(mCat.getCategory());
+        mTextView.setText(category);
 
-        adapter=new CategoryAdapter(this, cost);
+        adapter=new CategoryAdapter(this, categories);
 
         ListView listView = (ListView) findViewById(R.id.costListView);
         listView.setAdapter(adapter);

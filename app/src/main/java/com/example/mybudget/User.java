@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 public class User implements Serializable {
 
     private Double budget;
-    private HashMap<String, Category> userExpenses=new HashMap<>();
+    private HashMap<String, ArrayList<Category>> userExpenses=new HashMap<>();
     private String email;
     private String userID;
 
@@ -41,19 +41,19 @@ public class User implements Serializable {
         this.userID = userID;
     }
 
-    public void addCategory(String categoryName, Double cost){
-        Category category=new Category(categoryName);
-        category.addCost(cost);
-
+    public void addCategory(String categoryName, String description, Double cost){
+        Category category=new Category(description, cost);
+        ArrayList<Category> categories=new ArrayList<>();
+        categories.add(category);
         if(this.userExpenses.get(categoryName)==null){
-            this.userExpenses.put(categoryName, category);
+            this.userExpenses.put(categoryName, categories);
         }
         else{
-            this.userExpenses.get(categoryName).addCost(cost);
+            this.userExpenses.get(categoryName).add(category);
         }
     }
 
-    public HashMap<String, Category> getUserCategory() {
+    public HashMap<String, ArrayList<Category>> getUserCategory() {
         return this.userExpenses;
     }
 
@@ -75,11 +75,11 @@ public class User implements Serializable {
 //        return -1;
 //    }
 
-    public Double getTotalSpent(){
-        Double totalSpent=0.00;
-        for(Category value: userExpenses.values()){
-            totalSpent+=value.getTotalCost();
-        }
-        return totalSpent;
-    }
+//    public Double getTotalSpent(){
+//        Double totalSpent=0.00;
+//        for(Category value: userExpenses.values()){
+//            totalSpent+=value.getTotalCost();
+//        }
+//        return totalSpent;
+//    }
 }

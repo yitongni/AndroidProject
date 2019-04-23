@@ -32,6 +32,17 @@
         app:layout_constraintVertical_bias="0.421" />
 
     <EditText
+        android:id="@+id/description"
+        android:layout_width="197dp"
+        android:layout_height="90dp"
+        android:hint="Enter a Description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.218" />
+
+    <EditText
         android:id="@+id/categoryCost"
         android:layout_width="144dp"
         android:layout_height="75dp"
@@ -63,7 +74,7 @@
         android:hint="Enter a Budget"
         android:inputType="numberDecimal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"

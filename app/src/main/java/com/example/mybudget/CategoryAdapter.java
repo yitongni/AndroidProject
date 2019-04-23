@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class CategoryAdapter extends ArrayAdapter<Double> {
-    public CategoryAdapter(Context context, ArrayList<Double> categories) {
+public class CategoryAdapter extends ArrayAdapter<Category> {
+    public CategoryAdapter(Context context, ArrayList<Category> categories) {
         super(context, 0, categories);
     }
 
@@ -21,11 +21,15 @@ public class CategoryAdapter extends ArrayAdapter<Double> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.category_layout, parent, false);
         }
 
+        Category category=getItem(position);
+
         TextView cost = convertView.findViewById(R.id.cost);
-
-        Double categoryCost=getItem(position);
-
+        Double categoryCost=category.getCost();
         cost.setText("Total Spent: " + String.format("%.2f", categoryCost));
+
+        TextView description =convertView.findViewById(R.id.description);
+        String descript=category.getCategory();
+        description.setText(descript);
 
         return convertView;
     }

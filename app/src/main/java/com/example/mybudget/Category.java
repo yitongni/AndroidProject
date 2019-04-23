@@ -6,46 +6,21 @@ import java.util.ArrayList;
 public class Category implements Serializable {
 
     private String category;
-    private ArrayList<Double> cost=new ArrayList<>();
+    private Double cost;
 
-    public Category(){
-        //cost=new ArrayList<>();
-    }
+    public Category(){}
 
-    public Category(String name){
+    public Category(String name, Double cost1){
         this.category=name;
+        this.cost=cost1;
     }
 
     public String getCategory() {
         return this.category;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public void deleteCost(int position){
-        cost.remove(position);
-    }
-
-    public ArrayList<Double> getCost() {
+    public Double getCost() {
         return this.cost;
-    }
-
-    public void setCost(ArrayList<Double> cost) {
-        this.cost = cost;
-    }
-
-    public void addCost(Double mycost) {
-        this.cost.add(mycost);
-    }
-
-    public Double getTotalCost() {
-        Double totalCost=0.00;
-        for(int i=0; i<this.cost.size(); i++){
-            totalCost+=this.cost.get(i);
-        }
-        return totalCost;
     }
 
 }

@@ -53,7 +53,7 @@ public class BudgetActivity extends AppCompatActivity {
     private User currentUser;
     private FirebaseUser myuser;
 
-    private HashMap<String, Category> userExpenses;
+    private HashMap<String, ArrayList<Category>> userExpenses;
 
     static final int REQUEST_CODE = 0;
 
@@ -114,9 +114,6 @@ public class BudgetActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        //retrieveCurrentUserInformation();
-        //showsChart();
-
     }
 
     //Retrieves data from database
@@ -133,10 +130,10 @@ public class BudgetActivity extends AppCompatActivity {
 
                 if(data.hasExtra("Category")){
                     String categoryName=data.getStringExtra("Category");
-
+                    String description=data.getStringExtra("Description");
                     Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
 
-                    currentUser.addCategory(categoryName, cost);
+                    currentUser.addCategory(categoryName, description, cost);
                     updateCategoryDatabase();
                 }
                 else if(data.hasExtra("Budget")) {
@@ -150,7 +147,6 @@ public class BudgetActivity extends AppCompatActivity {
                     }
                     Log.d(TAG, "Budget= " + amount);
                     currentUser.setBudget(amount);
-                    //textView.setText(getString(R.string.budget, String.format("%.2f", amount)));
                     updateBudgetDatabase();
                 }
             }
@@ -166,7 +162,6 @@ public class BudgetActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Updating");
                 databaseuser3.child("Category").setValue(currentUser.getUserCategory());
-                databaseuser3.child("totalSpent").setValue(currentUser.getTotalSpent());
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -211,21 +206,19 @@ public class BudgetActivity extends AppCompatActivity {
                 Log.d(TAG, "Budget: " + currentUser.getBudget());
 
                 //Gets the categeory
-                GenericTypeIndicator<HashMap<String, Category>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Category>>(){};
+                GenericTypeIndicator<HashMap<String, ArrayList<Category>>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, ArrayList<Category>>>(){};
                 userExpenses=dataSnapshot.child("Category").getValue(genericTypeIndicator);
 
                 //Copys the expenses to current user information
-                for (Map.Entry<String, Category> entry : userExpenses.entrySet()) {
+                for (Map.Entry<String, ArrayList<Category>> entry : userExpenses.entrySet()) {
 
                     String key = entry.getKey();
                     Log.d(TAG, "KEY: " + key);
 
-                    Category value = new Category(entry.getValue().getCategory());
-                    value.setCost(entry.getValue().getCost());
-
-                    for(int i=0; i<value.getCost().size(); i++){
-                        Log.d(TAG, "Cost: " + value.getCost().get(i));
-                        currentUser.addCategory(key, value.getCost().get(i));
+                    ArrayList<Category> categories=entry.getValue();
+                    for(int i=0; i<categories.size(); i++){
+                        Log.d(TAG, "Cost: " + categories.get(i).getCost());
+                        currentUser.addCategory(key, categories.get(i).getCategory(), categories.get(i).getCost());
                     }
                 }
                 showPieChart();
@@ -245,13 +238,14 @@ public class BudgetActivity extends AppCompatActivity {
 
         final List<SliceValue> pieData = new ArrayList<>();
 
-        Double spent=currentUser.getTotalSpent();
-        float totalSpent = spent.floatValue();
-
         //Iterate map and get each value for pie chart
-        for (Map.Entry<String, Category> entry : currentUser.getUserCategory().entrySet()) {
+        for (Map.Entry<String, ArrayList<Category>> entry : currentUser.getUserCategory().entrySet()) {
             Log.d(TAG, "Category: "+entry.getKey());
-            Double cost=entry.getValue().getTotalCost();
+            ArrayList<Category> categories=entry.getValue();
+            Double cost=0.0; //Calculate user total spending for that category
+            for(int i=0; i<categories.size(); i++){
+                cost+=categories.get(i).getCost();
+            }
             float totalCost = cost.floatValue();
             Random rnd = new Random();
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
@@ -270,7 +264,7 @@ public class BudgetActivity extends AppCompatActivity {
                 Log.d(TAG, "You pressed: " + subString);
 
                 Intent newIntent=new Intent(BudgetActivity.this, CategoryActivity.class);
-                newIntent.putExtra("Category", currentUser.getUserCategory().get(subString));
+                newIntent.putExtra("Category", subString);
                 startActivity(newIntent);
             }
 
