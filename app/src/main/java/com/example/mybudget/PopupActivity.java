@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -24,6 +25,7 @@ public class PopupActivity extends Activity {
     private EditText description, budget, categoryCost;
     private String category, butgetCost, catCost, categoryDescription;
     private ArrayList<String> categorySpinner;
+    private AutoCompleteTextView enterCategory;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,12 +39,15 @@ public class PopupActivity extends Activity {
         for(int i=0; i<categorySpinner.size(); i++){
             Log.d(TAG, "Your Category" + categorySpinner.get(i));
         }
+        enterCategory=(AutoCompleteTextView)findViewById(R.id.editTextCategory);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,categorySpinner);
+        enterCategory.setAdapter(adapter);
 
-        spinner1=(Spinner)findViewById(R.id.categorySpinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, categorySpinner);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner1.setAdapter(adapter);
+//        spinner1=(Spinner)findViewById(R.id.categorySpinner);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+//                android.R.layout.simple_spinner_item, categorySpinner);
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        spinner1.setAdapter(adapter);
 
         description=(EditText)findViewById(R.id.description);
         budget=(EditText)findViewById(R.id.editTextBudget);
@@ -55,7 +60,8 @@ public class PopupActivity extends Activity {
             if(intValue==R.id.editBudget)
             {
                 description.setVisibility(View.GONE);
-                spinner1.setVisibility(View.GONE);
+                enterCategory.setVisibility(View.GONE);
+                //spinner1.setVisibility(View.GONE);
                 categoryCost.setVisibility(View.GONE);
                 budget.setVisibility(View.VISIBLE);
 
@@ -80,7 +86,8 @@ public class PopupActivity extends Activity {
             else if(intValue==R.id.addCategory)
             {
                 budget.setVisibility(View.GONE);
-                spinner1.setVisibility(View.VISIBLE);
+                enterCategory.setVisibility(View.VISIBLE);
+                //spinner1.setVisibility(View.VISIBLE);
                 categoryCost.setVisibility(View.VISIBLE);
                 description.setVisibility(View.VISIBLE);
 
@@ -88,7 +95,7 @@ public class PopupActivity extends Activity {
                 btn_save.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        category = spinner1.getSelectedItem().toString();
+                        category = enterCategory.getText().toString();
                         catCost= categoryCost.getText().toString();
                         categoryDescription = description.getText().toString();
                         if (!(category.trim().equals("")) && !(catCost.trim().equals("")) && !(categoryDescription.trim().equals(""))) { //Make sure to enter every field
