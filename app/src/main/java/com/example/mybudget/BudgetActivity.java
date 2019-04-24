@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -16,9 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ExpandableListView;
 
@@ -98,19 +103,18 @@ public class BudgetActivity extends AppCompatActivity {
         addBudgetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myintent=new Intent(BudgetActivity.this, PopupActivity.class);
-                myintent.putExtra("ButtonID", addBudgetButton.getId());
-                startActivityForResult(myintent, REQUEST_CODE);
+                showBudgetDialog();
             }
         });
 
         addCategoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myintent=new Intent(BudgetActivity.this, PopupActivity.class);
-                myintent.putExtra("ButtonID", addCategoryButton.getId());
-                myintent.putStringArrayListExtra("CategorySet", categoryList);
-                startActivityForResult(myintent, REQUEST_CODE);
+                showCategoryDialog();
+//                Intent myintent=new Intent(BudgetActivity.this, PopupActivity.class);
+//                myintent.putExtra("ButtonID", addCategoryButton.getId());
+//                myintent.putStringArrayListExtra("CategorySet", categoryList);
+//                startActivityForResult(myintent, REQUEST_CODE);
             }
         });
 
@@ -128,33 +132,109 @@ public class BudgetActivity extends AppCompatActivity {
         retrieveCurrentUserInformation();
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
+    //Show dialog to enter budget
+    private void showBudgetDialog(){
+        //Create dialog
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(BudgetActivity.this);
+        alertDialog.setMessage("Enter a Budget");
 
-                if(data.hasExtra("Category")){
-                    String categoryName=data.getStringExtra("Category");
-                    String description=data.getStringExtra("Description");
-                    Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
+        //Put a edit text for User to enter budget
+        final EditText input = new EditText(BudgetActivity.this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        alertDialog.setView(input);
 
-                    updateCategoryDatabase(categoryName, description, cost);
+        //When click save, retrieve budget
+        alertDialog.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                //Get budget entered
+                String budget = input.getText().toString();
+                double amount;
+                if (!(budget.trim().equals(""))) { //Make sure it not empty string
+                    amount = Double.parseDouble(budget);
+                } else {
+                    amount = 0.00; //Set amount to 0
                 }
-                else if(data.hasExtra("Budget")) {
-                    String mybudget = data.getStringExtra("Budget");
-                    Log.d(TAG, "Budget= " + mybudget);
-                    double amount;
-                    if (!(mybudget.trim().equals(""))) { //Make sure it not empty string
-                        amount = Double.parseDouble(mybudget);
-                    } else {
-                        amount = 0.00; //Set amount to 0
-                    }
-                    Log.d(TAG, "Budget= " + amount);
-                    currentUser.setBudget(amount);
-                    updateBudgetDatabase();
-                }
+                Log.d(TAG, "Budget= " + amount);
+                currentUser.setBudget(amount);
+                updateBudgetDatabase();
             }
-        }
+        });
+        //Cancel
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        alertDialog.show();
     }
+
+    //Show dialog to enter budget
+    private void showCategoryDialog(){
+        //Create dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(BudgetActivity.this);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_layout, null);
+        builder.setView(dialogView);
+
+        final EditText editTextDescription = (EditText) dialogView.findViewById(R.id.description);
+        final EditText editTextCost = (EditText) dialogView.findViewById(R.id.categoryCost);
+        final AutoCompleteTextView editTextCategory = (AutoCompleteTextView) dialogView.findViewById(R.id.editTextCategory);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,categoryList);
+        editTextCategory.setAdapter(adapter);
+
+        //When click save, retrieve budget
+        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                String description =editTextDescription.getText().toString();
+                Double cost= Double.parseDouble(editTextCost.getText().toString());
+                String category=editTextCategory.getText().toString();
+                updateCategoryDatabase(category, description, cost);
+            }
+        });
+        //Cancel
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == REQUEST_CODE) {
+//            if (resultCode == RESULT_OK) {
+//
+//                if(data.hasExtra("Category")){
+//                    String categoryName=data.getStringExtra("Category");
+//                    String description=data.getStringExtra("Description");
+//                    Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
+//
+//                    updateCategoryDatabase(categoryName, description, cost);
+//                }
+//                else if(data.hasExtra("Budget")) {
+//                    String mybudget = data.getStringExtra("Budget");
+//                    Log.d(TAG, "Budget= " + mybudget);
+//                    double amount;
+//                    if (!(mybudget.trim().equals(""))) { //Make sure it not empty string
+//                        amount = Double.parseDouble(mybudget);
+//                    } else {
+//                        amount = 0.00; //Set amount to 0
+//                    }
+//                    Log.d(TAG, "Budget= " + amount);
+//                    currentUser.setBudget(amount);
+//                    updateBudgetDatabase();
+//                }
+//            }
+//        }
+//    }
 
     //updatesCategoryDatabase when new expenses is added
     private void updateCategoryDatabase(final String name, final String description, final Double cost) {
