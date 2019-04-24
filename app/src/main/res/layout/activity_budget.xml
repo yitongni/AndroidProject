@@ -16,9 +16,8 @@
         android:layout_height="75dp"
         android:layout_toRightOf="@+id/editBudget"
         android:background="#FF44"
-        android:clickable="true"
         android:gravity="center"
-        android:textSize="25dp"/>
+        android:textSize="25dp" />
 
     <Button
         android:id="@+id/addCategory"
