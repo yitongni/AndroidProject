@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +24,8 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,14 +33,14 @@ import java.util.Map;
 public class CategoryActivity extends AppCompatActivity {
 
     private static final String TAG = "CategoryActivity";
-    private TextView mTextView;
+    private TextView mTextView, totalSpentTextView;
     private FirebaseUser myuser;
-    private Category mCat;
+//    private Category mCat;
     private HashMap<String, Category> expenses;
     private String category;
     private ArrayList<Category> categories=new ArrayList<>();
-    private ArrayList<Double> cost=new ArrayList<Double>();
-    private Category myCat;
+//    private ArrayList<Double> cost=new ArrayList<Double>();
+//    private Category myCat;
     private CategoryAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,7 @@ public class CategoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_category);
 
         mTextView=(TextView)findViewById(R.id.textViewCategory);
+        totalSpentTextView=(TextView)findViewById(R.id.textViewTotalSpent);
         myuser= FirebaseAuth.getInstance().getCurrentUser();
         expenses=new HashMap<>();
         init();
@@ -87,7 +92,6 @@ public class CategoryActivity extends AppCompatActivity {
 //                    }
 //                }
                 adapter.notifyDataSetChanged();
-
             }
 
 
@@ -126,10 +130,19 @@ public class CategoryActivity extends AppCompatActivity {
 
     }
 
+    private void calculateTotalSpent(){
+        Double totalspent=0.0;
+        for(int i=0; i<categories.size(); i++){
+            totalspent+=categories.get(i).getCost(); //Calculate user total price
+        }
+        totalSpentTextView.setText(String.format(getString(R.string.totalCost), totalspent.toString()));
+    }
     private void populateView(){
         Log.d(TAG, "Populating View");
 
         mTextView.setText(category);
+
+        calculateTotalSpent();
 
         adapter=new CategoryAdapter(this, categories);
 
@@ -141,6 +154,7 @@ public class CategoryActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 deleteCost(position);
                 categories.remove(position);
+                calculateTotalSpent();
             }
         });
 

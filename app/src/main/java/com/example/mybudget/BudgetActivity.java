@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import lecho.lib.hellocharts.listener.PieChartOnValueSelectListener;
 import lecho.lib.hellocharts.model.PieChartData;
@@ -54,6 +55,7 @@ public class BudgetActivity extends AppCompatActivity {
     private FirebaseUser myuser;
 
     private HashMap<String, ArrayList<Category>> userExpenses;
+    private ArrayList<String> categoryList; //Determines all unique category
 
     static final int REQUEST_CODE = 0;
 
@@ -82,6 +84,7 @@ public class BudgetActivity extends AppCompatActivity {
 
         currentUser=new User();
         userExpenses=new HashMap<>();
+        categoryList=new ArrayList<>();
 
         //Set up buttons and textView
         textView=(TextView) findViewById(R.id.textViewBudget);
@@ -106,6 +109,7 @@ public class BudgetActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent myintent=new Intent(BudgetActivity.this, PopupActivity.class);
                 myintent.putExtra("ButtonID", addCategoryButton.getId());
+                myintent.putStringArrayListExtra("CategorySet", categoryList);
                 startActivityForResult(myintent, REQUEST_CODE);
             }
         });
@@ -199,6 +203,7 @@ public class BudgetActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 userExpenses.clear();
                 currentUser=new User();
+                categoryList.clear();
 
                 currentUser.setEmail(dataSnapshot.child("email").getValue(String.class));
                 Log.d(TAG, "Email: " + currentUser.getEmail());
@@ -212,12 +217,15 @@ public class BudgetActivity extends AppCompatActivity {
 
                 //Gets the categeory
                 for(DataSnapshot postSnapShot : dataSnapshot.child("Category").getChildren()){
+                    Log.d(TAG, "Your Category: " + postSnapShot.getKey());
+                    categoryList.add(postSnapShot.getKey());
                     for(DataSnapshot postSnapShot2 : postSnapShot.getChildren()){
                         Log.d(TAG, "Retrieving");
-                        Log.d(TAG, "Food: " + postSnapShot2.getValue(Category.class).getCategory());
+                        Log.d(TAG, "Category: " + postSnapShot2.getValue(Category.class).getCategory());
                         Log.d(TAG, "Description: " + postSnapShot2.getValue(Category.class).getDescription());
                         Log.d(TAG, "Cost: " + postSnapShot2.getValue(Category.class).getCost());
                         Log.d(TAG, "ID: " + postSnapShot2.getValue(Category.class).getId());
+
 
                         Category category=new Category(postSnapShot2.getValue(Category.class).getDescription(),
                                 postSnapShot2.getValue(Category.class).getCost(), postSnapShot2.getValue(Category.class).getId(),

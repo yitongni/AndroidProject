@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 public class PopupActivity extends Activity {
 
     private static final String TAG = "PopupActivity";
@@ -21,11 +23,20 @@ public class PopupActivity extends Activity {
     private Spinner spinner1;
     private EditText description, budget, categoryCost;
     private String category, butgetCost, catCost, categoryDescription;
-    private String [] categorySpinner={"Food", "Rent"};
+    private ArrayList<String> categorySpinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup);
+
+        categorySpinner=new ArrayList<>();
+        Intent myIntent=getIntent();
+        if (myIntent.hasExtra("CategorySet")){
+            categorySpinner=myIntent.getStringArrayListExtra("CategorySet");
+        }
+        for(int i=0; i<categorySpinner.size(); i++){
+            Log.d(TAG, "Your Category" + categorySpinner.get(i));
+        }
 
         spinner1=(Spinner)findViewById(R.id.categorySpinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -37,7 +48,7 @@ public class PopupActivity extends Activity {
         budget=(EditText)findViewById(R.id.editTextBudget);
         categoryCost=(EditText)findViewById(R.id.categoryCost);
 
-        Intent myIntent=getIntent();
+
         if(myIntent.hasExtra("ButtonID"))
         {
             int intValue = myIntent.getIntExtra("ButtonID", 0);
