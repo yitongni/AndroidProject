@@ -110,7 +110,7 @@ public class CategoryActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Retrieving from database");
                 for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
-                    Category category=new Category(postSnapshot.child("description").getValue(String.class), postSnapshot.child("cost").getValue(Double.class), postSnapshot.child("id").getValue(String.class), postSnapshot.child("category").getValue(String.class));
+                    Category category=new Category(postSnapshot.child("description").getValue(String.class), postSnapshot.child("cost").getValue(Double.class), postSnapshot.child("id").getValue(String.class), postSnapshot.child("category").getValue(String.class), postSnapshot.child("date").getValue(String.class));
                     categories.add(category);
                 }
                 for(int i=0; i<categories.size(); i++){

@@ -28,6 +28,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +38,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -80,7 +83,6 @@ public class BudgetActivity extends AppCompatActivity {
                     return true;
                 case R.id.myBudget:
                     return true;
-
             }
             return false;
         }
@@ -115,10 +117,6 @@ public class BudgetActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showCategoryDialog();
-//                Intent myintent=new Intent(BudgetActivity.this, PopupActivity.class);
-//                myintent.putExtra("ButtonID", addCategoryButton.getId());
-//                myintent.putStringArrayListExtra("CategorySet", categoryList);
-//                startActivityForResult(myintent, REQUEST_CODE);
             }
         });
 
@@ -191,14 +189,47 @@ public class BudgetActivity extends AppCompatActivity {
         final AutoCompleteTextView editTextCategory = (AutoCompleteTextView) dialogView.findViewById(R.id.editTextCategory);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,categoryList);
         editTextCategory.setAdapter(adapter);
+        final Button btn=(Button)dialogView.findViewById(R.id.chooseDate);
+        final TextView textview =(TextView)dialogView.findViewById(R.id.date);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar calendar=Calendar.getInstance();
+
+                int day= calendar.get(Calendar.DAY_OF_MONTH);
+                int month= calendar.get(Calendar.MONTH);
+                int year=calendar.get(Calendar.YEAR);
+
+                Log.d(TAG, "" + calendar.get(Calendar.YEAR));
+                Log.d(TAG, "" + calendar.get(Calendar.MONTH));
+                Log.d(TAG, "" + calendar.get(Calendar.DAY_OF_MONTH));
+
+                DatePickerDialog datePickerDialog=new DatePickerDialog(BudgetActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                        textview.setText(day + "/" +(month+1) +"/" +year);
+                    }
+                }, day, month, year);
+                datePickerDialog.show();
+            }
+        });
 
         //When click save, retrieve budget
         builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 String description =editTextDescription.getText().toString();
-                Double cost= Double.parseDouble(editTextCost.getText().toString());
+                Double cost=0.0;
+                if(!(editTextCost.getText().toString().equals(""))){
+                    cost= Double.parseDouble(editTextCost.getText().toString());
+                }
                 String category=editTextCategory.getText().toString();
-                updateCategoryDatabase(category, description, cost);
+                String date=textview.getText().toString();
+                if (!(description.trim().equals("")) && !(category.trim().equals("")) && !(date.trim().equals(""))) { //Make sure it not empty string
+                    updateCategoryDatabase(category, description, cost, date);
+                }
+                else{
+                    Toast.makeText(BudgetActivity.this, "Don't leave any fields empty", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         //Cancel
@@ -212,40 +243,8 @@ public class BudgetActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-//    private void updateLabel() {
-//
-//    }
-
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == REQUEST_CODE) {
-//            if (resultCode == RESULT_OK) {
-//
-//                if(data.hasExtra("Category")){
-//                    String categoryName=data.getStringExtra("Category");
-//                    String description=data.getStringExtra("Description");
-//                    Double cost=Double.parseDouble(data.getStringExtra("CategoryCost"));
-//
-//                    updateCategoryDatabase(categoryName, description, cost);
-//                }
-//                else if(data.hasExtra("Budget")) {
-//                    String mybudget = data.getStringExtra("Budget");
-//                    Log.d(TAG, "Budget= " + mybudget);
-//                    double amount;
-//                    if (!(mybudget.trim().equals(""))) { //Make sure it not empty string
-//                        amount = Double.parseDouble(mybudget);
-//                    } else {
-//                        amount = 0.00; //Set amount to 0
-//                    }
-//                    Log.d(TAG, "Budget= " + amount);
-//                    currentUser.setBudget(amount);
-//                    updateBudgetDatabase();
-//                }
-//            }
-//        }
-//    }
-
     //updatesCategoryDatabase when new expenses is added
-    private void updateCategoryDatabase(final String name, final String description, final Double cost) {
+    private void updateCategoryDatabase(final String name, final String description, final Double cost, final String date) {
         Log.d(TAG, "Updating Category");
         final DatabaseReference databaseuser3=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
         databaseuser3.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -255,8 +254,8 @@ public class BudgetActivity extends AppCompatActivity {
 
                 Log.d(TAG, databaseuser3.push().getKey());
                 String id=databaseuser3.push().getKey();
-                Category category=new Category(description, cost, id, name);
-                currentUser.addCategory(name, description, cost, id);
+                Category category=new Category(description, cost, id, name, date);
+                currentUser.addCategory(name, description, cost, id, date);
                 databaseuser3.child("Category").child(name).child(id).setValue(category);
             }
 
@@ -317,7 +316,7 @@ public class BudgetActivity extends AppCompatActivity {
 
                         Category category=new Category(postSnapShot2.getValue(Category.class).getDescription(),
                                 postSnapShot2.getValue(Category.class).getCost(), postSnapShot2.getValue(Category.class).getId(),
-                                postSnapShot2.getValue(Category.class).getCategory());
+                                postSnapShot2.getValue(Category.class).getCategory(), postSnapShot2.getValue(Category.class).getDate());
 
                         ArrayList<Category> mylist =new ArrayList<>();
                         mylist.add(category);
@@ -339,7 +338,7 @@ public class BudgetActivity extends AppCompatActivity {
                     ArrayList<Category> categories=entry.getValue();
                     for(int i=0; i<categories.size(); i++){
                         Log.d(TAG, "Cost: " + categories.get(i).getCost());
-                        currentUser.addCategory(key, categories.get(i).getDescription(), categories.get(i).getCost(), categories.get(i).getId());
+                        currentUser.addCategory(key, categories.get(i).getDescription(), categories.get(i).getCost(), categories.get(i).getId(), categories.get(i).getDate());
                     }
                 }
                 showPieChart();

@@ -9,14 +9,16 @@ public class Category implements Serializable {
     private Double cost;
     private String id;
     private String category;
+    private String date;
 
     public Category(){}
 
-    public Category(String name, Double cost1, String id1, String category1){
+    public Category(String name, Double cost1, String id1, String category1, String date1){
         this.description=name;
         this.cost=cost1;
         this.id=id1;
         this.category=category1;
+        this.date=date1;
     }
 
     public String getDescription() {
@@ -33,6 +35,10 @@ public class Category implements Serializable {
 
     public String getCategory(){
         return this.category;
+    }
+
+    public String getDate() {
+        return date;
     }
 
     public void setCost(Double cost) {

@@ -38,12 +38,19 @@
         android:layout_below="@+id/description"
         android:inputType="numberDecimal" />
 
-    <EditText
+    <TextView
         android:id="@+id/date"
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:hint="Choose a date"
-        android:layout_below="@+id/categoryCost" />
+        android:layout_below="@+id/categoryCost"
+        android:layout_toRightOf="@+id/chooseDate"/>
+
+    <Button
+        android:id="@+id/chooseDate"
+        android:layout_width="100dp"
+        android:layout_height="75dp"
+        android:text="Choose a date"
+        android:layout_below="@id/categoryCost"/>
 
 
 </RelativeLayout>

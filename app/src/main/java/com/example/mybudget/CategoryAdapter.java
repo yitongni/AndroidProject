@@ -31,6 +31,10 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
         String descript=category.getDescription();
         description.setText(descript);
 
+        TextView date=convertView.findViewById(R.id.date);
+        String date1=category.getDate();
+        date.setText(date1);
+
         return convertView;
     }
 }
