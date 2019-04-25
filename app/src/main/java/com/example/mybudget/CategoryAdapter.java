@@ -25,7 +25,7 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
 
         TextView cost = convertView.findViewById(R.id.cost);
         Double categoryCost=category.getCost();
-        cost.setText(String.format(getContext().getString(R.string.totalCost), categoryCost.toString()));
+        cost.setText(String.format(categoryCost.toString()));
 
         TextView description =convertView.findViewById(R.id.description);
         String descript=category.getDescription();

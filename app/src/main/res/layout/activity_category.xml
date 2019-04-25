@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/textViewCategory"
-        android:layout_width="200dp"
+        android:layout_width="100dp"
         android:layout_height="50dp"
         android:textSize="25dp"/>
 
@@ -18,11 +18,38 @@
         android:layout_toRightOf="@+id/textViewCategory"
         android:textSize="25dp"/>
 
+    <TextView
+        android:id="@+id/descriptionName"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/textViewCategory"
+        android:text="Detail"
+        android:textSize="25dp"/>
+
+    <TextView
+        android:id="@+id/costSpent"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:layout_toRightOf="@+id/descriptionName"
+        android:text="Cost"
+        android:layout_below="@id/textViewTotalSpent"
+        android:textSize="25dp"/>
+
+
+    <TextView
+        android:id="@+id/textDate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_toRightOf="@+id/costSpent"
+        android:layout_below="@id/textViewTotalSpent"
+        android:text="DATE"
+        android:textSize="25dp"/>
+
     <ListView
         android:id="@+id/costListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/textViewCategory">
+        android:layout_below="@+id/descriptionName">
     </ListView>
 
 </RelativeLayout>

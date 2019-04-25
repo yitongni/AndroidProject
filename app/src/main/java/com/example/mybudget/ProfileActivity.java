@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -25,23 +26,6 @@ public class ProfileActivity extends AppCompatActivity {
     private String userid;
     private TextView email;
     private FirebaseUser myuser;
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.profile:
-                    return true;
-                case R.id.myBudget:
-                    Intent myintent =new Intent(ProfileActivity.this, BudgetActivity.class);
-                    startActivity(myintent);
-                    return true;
-            }
-            return false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +52,8 @@ public class ProfileActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         Log.d(TAG, user.getUid());
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        initNavigation();
+
     }
 
     public void LogOut() {
@@ -77,5 +61,30 @@ public class ProfileActivity extends AppCompatActivity {
         finish();
         Intent myIntent= new Intent(ProfileActivity.this, MainActivity.class);
         startActivity(myIntent);
+    }
+
+    private void initNavigation() {
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        Menu menu=navigation.getMenu();
+        MenuItem menuItem=menu.getItem(0);
+        menuItem.setChecked(true);
+
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.profile:
+                        return true;
+                    case R.id.myBudget:
+                        Log.d(TAG, "Clicked budget");
+                        finish();
+                        Intent myintent =new Intent(ProfileActivity.this, BudgetActivity.class);
+                        startActivity(myintent);
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 }

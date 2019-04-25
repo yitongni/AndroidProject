@@ -14,6 +14,7 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -120,10 +121,32 @@ public class BudgetActivity extends AppCompatActivity {
             }
         });
 
-        //Navigation bar
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        initNavigationBar();
+    }
 
+    //Shows Nagivation Bar
+    private void initNavigationBar() {
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        Menu menu=navigation.getMenu();
+        MenuItem menuItem=menu.getItem(1);
+        menuItem.setChecked(true);
+
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.profile:
+                        Log.d(TAG, "Clicked Profile");
+                        Intent myintent =new Intent(BudgetActivity.this, ProfileActivity.class);
+                        startActivity(myintent);
+                        return true;
+                    case R.id.myBudget:
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 
     //Retrieves data from database
@@ -157,7 +180,8 @@ public class BudgetActivity extends AppCompatActivity {
                 double amount;
                 if (!(budget.trim().equals(""))) { //Make sure it not empty string
                     amount = Double.parseDouble(budget);
-                } else {
+                }
+                else {
                     amount = 0.00; //Set amount to 0
                 }
                 Log.d(TAG, "Budget= " + amount);
@@ -166,8 +190,7 @@ public class BudgetActivity extends AppCompatActivity {
             }
         });
         //Cancel
-        alertDialog.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener() {
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
@@ -201,7 +224,7 @@ public class BudgetActivity extends AppCompatActivity {
                 int year=calendar.get(Calendar.YEAR);
 
                 Log.d(TAG, "" + calendar.get(Calendar.YEAR));
-                Log.d(TAG, "" + calendar.get(Calendar.MONTH));
+                Log.d(TAG, "" + (calendar.get(Calendar.MONTH)+1));
                 Log.d(TAG, "" + calendar.get(Calendar.DAY_OF_MONTH));
 
                 DatePickerDialog datePickerDialog=new DatePickerDialog(BudgetActivity.this, new DatePickerDialog.OnDateSetListener() {
@@ -210,6 +233,8 @@ public class BudgetActivity extends AppCompatActivity {
                         textview.setText(day + "/" +(month+1) +"/" +year);
                     }
                 }, day, month, year);
+                //Set calender to current day
+                datePickerDialog.updateDate(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
             }
         });
@@ -251,7 +276,6 @@ public class BudgetActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Updating");
-
                 Log.d(TAG, databaseuser3.push().getKey());
                 String id=databaseuser3.push().getKey();
                 Category category=new Category(description, cost, id, name, date);
@@ -375,6 +399,8 @@ public class BudgetActivity extends AppCompatActivity {
         final PieChartData pieChartData = new PieChartData(pieData);
         pieChartData.setHasLabels(true).setValueLabelTextSize(20);
         pieChartView.setPieChartData(pieChartData);
+
+        //Selects section you clicked
         pieChartView.setOnValueTouchListener(new PieChartOnValueSelectListener() {
             @Override
             public void onValueSelected(int arcIndex, SliceValue value) {
