@@ -27,8 +27,16 @@ import com.google.firebase.database.ValueEventListener;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.codecrafters.tableview.SortableTableView;
+import de.codecrafters.tableview.TableView;
+import de.codecrafters.tableview.listeners.TableDataLongClickListener;
+import de.codecrafters.tableview.toolkit.SimpleTableDataAdapter;
+import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
+import de.codecrafters.tableview.toolkit.TableDataRowBackgroundProviders;
 
 public class CategoryActivity extends AppCompatActivity {
 
@@ -91,7 +99,7 @@ public class CategoryActivity extends AppCompatActivity {
 //                        }
 //                    }
 //                }
-                adapter.notifyDataSetChanged();
+                //adapter.notifyDataSetChanged();
             }
 
 
@@ -144,19 +152,56 @@ public class CategoryActivity extends AppCompatActivity {
 
         calculateTotalSpent();
 
-        adapter=new CategoryAdapter(this, categories);
+        final String[] TABLE_HEADERS = { "Description", "Cost", "Date"};
 
-        ListView listView = (ListView) findViewById(R.id.costListView);
-        listView.setAdapter(adapter);
+        SortableTableView<Category> sortableTableView = (SortableTableView<Category>) findViewById(R.id.tableView);
+        final CategoryTableDataAdapter categoryTableDataAdapter=new CategoryTableDataAdapter(this, categories);
+        sortableTableView.setDataAdapter(categoryTableDataAdapter);
+        sortableTableView.setHeaderAdapter(new SimpleTableHeaderAdapter(this, TABLE_HEADERS));
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        int colorEvenRows = getResources().getColor(R.color.grey_3);
+        int colorOddRows = getResources().getColor(R.color.grey_20);
+        sortableTableView.setDataRowBackgroundProvider(TableDataRowBackgroundProviders.alternatingRowColors(colorEvenRows, colorOddRows));
+        sortableTableView.setColumnComparator(0, new CategoryDescriptionComparator());
+        sortableTableView.setColumnComparator(1, new CategoryCostComparator());
+
+        //adapter=new CategoryAdapter(this, categories);
+
+        sortableTableView.addDataLongClickListener(new TableDataLongClickListener<Category>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                deleteCost(position);
-                categories.remove(position);
+            public boolean onDataLongClicked(int rowIndex, Category clickedData) {
+                deleteCost(rowIndex);
+                categories.remove(rowIndex);
+                categoryTableDataAdapter.notifyDataSetChanged();
                 calculateTotalSpent();
+                return true;
             }
         });
+//        ListView listView = (ListView) findViewById(R.id.costListView);
+//        listView.setAdapter(adapter);
+//
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                deleteCost(position);
+//                categories.remove(position);
+//                calculateTotalSpent();
+//            }
+//        });
 
+    }
+
+    private static class CategoryCostComparator implements Comparator<Category> {
+        @Override
+        public int compare(Category category1, Category category2) {
+            return category1.getCost().compareTo(category2.getCost());
+        }
+    }
+
+    private static class CategoryDescriptionComparator implements Comparator<Category> {
+        @Override
+        public int compare(Category category1, Category category2) {
+            return category1.getDescription().compareTo(category2.getDescription());
+        }
     }
 }
