@@ -78,9 +78,13 @@ public class ProfileActivity extends AppCompatActivity {
                         return true;
                     case R.id.myBudget:
                         Log.d(TAG, "Clicked budget");
-                        finish();
                         Intent myintent =new Intent(ProfileActivity.this, BudgetActivity.class);
                         startActivity(myintent);
+                        return true;
+                    case R.id.images:
+                        Log.d(TAG, "Clicked Images");
+                        Intent imageIntent =new Intent(ProfileActivity.this, ImageActivity.class);
+                        startActivity(imageIntent);
                         return true;
                 }
                 return false;

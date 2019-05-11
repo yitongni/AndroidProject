@@ -23,7 +23,6 @@ public class CategoryTableDataAdapter extends TableDataAdapter<Category> {
         View renderedView = LayoutInflater.from(getContext()).inflate(R.layout.category_layout, parentView, false);
         switch (columnIndex) {
             case 0:
-
                 TextView textView=(TextView)renderedView.findViewById(R.id.description);
                 if(textView.getParent() != null) {
                     ((ViewGroup)textView.getParent()).removeView(textView); // <- fix
@@ -36,7 +35,7 @@ public class CategoryTableDataAdapter extends TableDataAdapter<Category> {
                 if(textViewCost.getParent() != null) {
                     ((ViewGroup)textViewCost.getParent()).removeView(textViewCost); // <- fix
                 }
-                textViewCost.setText(category.getCost().toString());
+                textViewCost.setText(String.format("%.2f", category.getCost()));
                 renderedView = textViewCost;
                 break;
             case 2:

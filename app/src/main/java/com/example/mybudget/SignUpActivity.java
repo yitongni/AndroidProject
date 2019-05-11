@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +35,9 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText editTextEmail;
     private EditText editTextPassword;
     private EditText confirmPassword;
-    private TextView textViewSignup;
+    //private TextView textViewSignup;
+    private TextView textViewLogin;
+    private ImageView logo;
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDataBaseUsers;
@@ -53,7 +56,18 @@ public class SignUpActivity extends AppCompatActivity {
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
         confirmPassword=(EditText) findViewById(R.id.confirmPassword);
         buttonSignUp = (Button) findViewById(R.id.buttonSignUp);
-        textViewSignup  = (TextView) findViewById(R.id.SignUp);
+        //textViewSignup  = (TextView) findViewById(R.id.SignUp);
+        logo=(ImageView)findViewById(R.id.logo);
+        textViewLogin=(TextView)findViewById(R.id.textViewLogIn);
+
+        textViewLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                Intent myIntent= new Intent(SignUpActivity.this, MainActivity.class);
+                startActivity(myIntent);
+            }
+        });
 
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,8 +78,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     //Get user username and password
-    public void registerUser()
-    {
+    public void registerUser() {
         String email = editTextEmail.getText().toString().trim();
         String password  = editTextPassword.getText().toString().trim();
         String password2 = confirmPassword.getText().toString().trim();

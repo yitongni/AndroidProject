@@ -3,22 +3,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_centerInParent="true"
     android:orientation="vertical"
-    tools:context="com.example.mybudget.MainActivity">
+    tools:context="com.example.mybudget.MainActivity"
+    android:background="@color/blue_grey_900">
 
     <LinearLayout
+        android:id="@+id/relativeLayout"
         android:layout_centerVertical="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="SignUp"
-            android:id="@+id/SignUp"
-            android:layout_gravity="center_horizontal" />
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_above="@+id/relativeLayout"
+            android:src="@drawable/piggybank"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"/>
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceLarge"-->
+            <!--android:text="Sign Up"-->
+            <!--android:textColor="@color/green_A400"-->
+            <!--android:id="@+id/SignUp"-->
+            <!--android:layout_gravity="center_horizontal" />-->
 
         <EditText
             android:id="@+id/editTextEmail"
@@ -26,7 +40,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:hint="Enter email"
-            android:inputType="textEmailAddress" />
+            android:textColor="@color/green_A400"
+            android:inputType="textEmailAddress"
+            android:textColorHint="@color/green_A400"/>
 
         <EditText
             android:id="@+id/editTextPassword"
@@ -34,7 +50,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:hint="Enter password"
-            android:inputType="textPassword" />
+            android:textColor="@color/green_A400"
+            android:inputType="textPassword"
+            android:textColorHint="@color/green_A400"/>
 
         <EditText
             android:id="@+id/confirmPassword"
@@ -42,14 +60,26 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:hint="Confirm password"
-            android:inputType="textPassword" />
+            android:textColor="@color/green_A400"
+            android:inputType="textPassword"
+            android:textColorHint="@color/green_A400"/>
 
         <Button
             android:id="@+id/buttonSignUp"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Register"
+            android:background="@drawable/btn_signup"/>
+
+        <TextView
+            android:id="@+id/textViewLogIn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Have an account already? Log In"
+            android:textAlignment="center"
             android:layout_margin="15dp"
-            android:text="Register" />
+            android:textColor="@color/green_A400"/>
 
     </LinearLayout>
 

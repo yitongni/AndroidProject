@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+        <RelativeLayout
+            android:id="@+id/form_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <AutoCompleteTextView
+                android:id="@+id/textCategory"
+                style="?android:attr/spinnerItemStyle"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:hint="Enter a category"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0.502"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.266" />
+
+            <ImageButton
+                android:id="@+id/takePicture"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_photo_camera_black_24dp"
+                android:background="@drawable/btn_signup"
+                android:layout_below="@id/textCategory"/>
+            <!--<Button-->
+                <!--android:id="@+id/takePicture"-->
+                <!--android:layout_width="100dp"-->
+                <!--android:layout_height="50dp"-->
+                <!--android:text="Take a Picture"-->
+                <!--android:layout_below="@id/textCategory"-->
+                <!--android:textSize="10dp"/>-->
+
+            <Button
+                android:id="@+id/saveImage"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/textCategory"
+                android:text="Save"
+                android:textSize="10dp"/>
+
+            <ImageView
+                android:id="@+id/picture"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:layout_below="@id/takePicture"/>
+
+
+
+
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

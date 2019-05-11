@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         textViewSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                finish();
                 Intent myIntent= new Intent(MainActivity.this, SignUpActivity.class);
                 startActivity(myIntent);
             }
@@ -61,8 +62,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Retrieve user entered Email and Password when they want to sign in
-    public void getEmailAndPassword()
-    {
+    public void getEmailAndPassword() {
         String email = editTextEmail.getText().toString().trim();
         String password  = editTextPassword.getText().toString().trim();
 
@@ -83,11 +83,10 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+        logIn(currentUser);
     }
 
-    public void signIn(String email, String password)
-    {
+    public void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -96,28 +95,21 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            logIn(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             //Toast.makeText(EmailPasswordActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                            updateUI(null);
                         }
-
-                        // ...
                     }
                 });
     }
 
-    public void updateUI(FirebaseUser currentUser) {
+    public void logIn(FirebaseUser currentUser) {
 
-        if(currentUser != null) //that means user is already logged in
-        {
-            //so close this activity
-            finish();
-
-            //and open profile activity
-            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+        if(currentUser != null){ //that means user is already logged in
+            finish(); //so close this activity
+            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));  //and open profile activity
         }
     }
 }

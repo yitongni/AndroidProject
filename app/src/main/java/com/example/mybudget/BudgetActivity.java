@@ -8,6 +8,7 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
@@ -24,8 +25,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ExpandableListView;
@@ -66,6 +69,7 @@ public class BudgetActivity extends AppCompatActivity {
     private TextView textView;
     private User currentUser;
     private FirebaseUser myuser;
+    private FloatingActionButton floatingActionButton;
 
     private HashMap<String, ArrayList<Category>> userExpenses;
     private ArrayList<String> categoryList; //Determines all unique category
@@ -84,6 +88,9 @@ public class BudgetActivity extends AppCompatActivity {
                     return true;
                 case R.id.myBudget:
                     return true;
+                case R.id.images:
+                    Intent imageIntent =new Intent(BudgetActivity.this, ImageActivity.class);
+                    startActivity(imageIntent);
             }
             return false;
         }
@@ -99,28 +106,27 @@ public class BudgetActivity extends AppCompatActivity {
         categoryList=new ArrayList<>();
 
         //Set up buttons and textView
-        textView=(TextView) findViewById(R.id.textViewBudget);
-        addCategoryButton =(Button)findViewById(R.id.addCategory);
-        addBudgetButton=(Button)findViewById(R.id.editBudget);
+        textView=(TextView) findViewById(R.id.textViewSpending);
+        //addCategoryButton =(Button)findViewById(R.id.addCategory);
+        floatingActionButton=(FloatingActionButton)findViewById(R.id.floating_action_button);
+        //addBudgetButton=(Button)findViewById(R.id.editBudget);
 
         //Get currently log in user from database
         myuser= FirebaseAuth.getInstance().getCurrentUser();
 
-        //On Button Clicks
-        addBudgetButton.setOnClickListener(new View.OnClickListener() {
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showBudgetDialog();
-            }
-        });
-
-        addCategoryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 showCategoryDialog();
             }
         });
-
+        //On Button Clicks
+//        addBudgetButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                showBudgetDialog();
+//            }
+//        });
         initNavigationBar();
     }
 
@@ -142,6 +148,11 @@ public class BudgetActivity extends AppCompatActivity {
                         startActivity(myintent);
                         return true;
                     case R.id.myBudget:
+                        return true;
+                    case R.id.images:
+                        Log.d(TAG, "Clicked Profile");
+                        Intent imageIntent =new Intent(BudgetActivity.this, ImageActivity.class);
+                        startActivity(imageIntent);
                         return true;
                 }
                 return false;
@@ -337,7 +348,6 @@ public class BudgetActivity extends AppCompatActivity {
                         Log.d(TAG, "Cost: " + postSnapShot2.getValue(Category.class).getCost());
                         Log.d(TAG, "ID: " + postSnapShot2.getValue(Category.class).getId());
 
-
                         Category category=new Category(postSnapShot2.getValue(Category.class).getDescription(),
                                 postSnapShot2.getValue(Category.class).getCost(), postSnapShot2.getValue(Category.class).getId(),
                                 postSnapShot2.getValue(Category.class).getCategory(), postSnapShot2.getValue(Category.class).getDate());
@@ -375,13 +385,13 @@ public class BudgetActivity extends AppCompatActivity {
     }
 
     public void showPieChart(){
-        textView.setText(getString(R.string.budget, String.format("%.2f", currentUser.getBudget())));
         Log.d(TAG, "Showing Pie Chart");
 
         final PieChartView pieChartView = findViewById(R.id.chart);
 
         final List<SliceValue> pieData = new ArrayList<>();
 
+        Double totalspent=0.0;
         //Iterate map and get each value for pie chart
         for (Map.Entry<String, ArrayList<Category>> entry : currentUser.getUserCategory().entrySet()) {
             Log.d(TAG, "Category: "+entry.getKey());
@@ -390,12 +400,17 @@ public class BudgetActivity extends AppCompatActivity {
             for(int i=0; i<categories.size(); i++){
                 cost+=categories.get(i).getCost();
             }
+            totalspent+=cost;
             Log.d(TAG, "Cost: " + cost);
             float totalCost = cost.floatValue();
             Random rnd = new Random();
             int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
             pieData.add(new SliceValue(totalCost, color).setLabel(entry.getKey()+": "+ String.valueOf(totalCost)));
         }
+
+        //textView.setText(totalspent.toString());
+        Log.d(TAG, "Total Spent: " + totalspent.toString());
+
         final PieChartData pieChartData = new PieChartData(pieData);
         pieChartData.setHasLabels(true).setValueLabelTextSize(20);
         pieChartView.setPieChartData(pieChartData);

@@ -26,6 +26,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,7 +52,6 @@ public class CategoryActivity extends AppCompatActivity {
     private ArrayList<Category> categories=new ArrayList<>();
 //    private ArrayList<Double> cost=new ArrayList<Double>();
 //    private Category myCat;
-    private CategoryAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,7 +145,7 @@ public class CategoryActivity extends AppCompatActivity {
         for(int i=0; i<categories.size(); i++){
             totalspent+=categories.get(i).getCost(); //Calculate user total price
         }
-        totalSpentTextView.setText(String.format(getString(R.string.totalCost), totalspent.toString()));
+        totalSpentTextView.setText(getString(R.string.totalCost, String.format("%.2f", totalspent)));
     }
     private void populateView(){
         Log.d(TAG, "Populating View");
@@ -164,6 +166,7 @@ public class CategoryActivity extends AppCompatActivity {
         sortableTableView.setDataRowBackgroundProvider(TableDataRowBackgroundProviders.alternatingRowColors(colorEvenRows, colorOddRows));
         sortableTableView.setColumnComparator(0, new CategoryDescriptionComparator());
         sortableTableView.setColumnComparator(1, new CategoryCostComparator());
+        sortableTableView.setColumnComparator(2, new CategoryDateComparator());
 
         //adapter=new CategoryAdapter(this, categories);
 
@@ -202,6 +205,20 @@ public class CategoryActivity extends AppCompatActivity {
         @Override
         public int compare(Category category1, Category category2) {
             return category1.getDescription().compareTo(category2.getDescription());
+        }
+    }
+
+    private static class CategoryDateComparator implements Comparator<Category> {
+        @Override
+        public int compare(Category category1, Category category2) {
+            DateFormat dateFormat=new SimpleDateFormat("dd/mm/yyyy");
+            try {
+                return dateFormat.parse(category1.getDate()).compareTo(dateFormat.parse(category2.getDate()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return 0;
+            //return category1.getDescription().compareTo(category2.getDescription());
         }
     }
 }
