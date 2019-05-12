@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -23,9 +24,16 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -43,9 +51,13 @@ public class CapturePhotoActivity extends AppCompatActivity {
     private ImageButton btnTakePicture;
     private Button savePicture;
     private ImageView imageView;
+    private Uri imageUri;
+
+    FirebaseStorage storage;
+    StorageReference storageReference;
 
     private File imageFile;
-    String pathToFile;
+    private String pathToFile;
     private boolean cameraPermission = false;
     private static final int CAMERA_REQUEST_CODE = 100;
 
@@ -69,7 +81,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
                     if(imageFile!=null){
                         pathToFile=imageFile.getAbsolutePath();
                         Intent cameraIntent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        Uri imageUri= FileProvider.getUriForFile(CapturePhotoActivity.this, "com.example.mybudget", imageFile);
+                        imageUri= FileProvider.getUriForFile(CapturePhotoActivity.this, "com.example.mybudget", imageFile);
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                         startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
                     }
@@ -79,7 +91,36 @@ public class CapturePhotoActivity extends AppCompatActivity {
         savePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                
+                String category=editTextCategory.getText().toString();
+                if(!category.trim().equals(""))
+                {
+                    storage=FirebaseStorage.getInstance();
+                    storageReference=storage.getReference();
+
+                    StorageReference ref = storageReference.child(myuser.getUid()).child(category).child(imageFile.getName());
+                    ref.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //After saving goes back to previous activity
+                            Toast.makeText(CapturePhotoActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                            Intent myIntent=new Intent(CapturePhotoActivity.this, ImageActivity.class);
+                            finish();
+                            startActivity(myIntent);
+                        }
+                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(CapturePhotoActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Toast.makeText(CapturePhotoActivity.this, "Uploading", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
             }
         });
     }

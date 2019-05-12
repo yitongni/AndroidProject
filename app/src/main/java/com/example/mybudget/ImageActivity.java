@@ -18,6 +18,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +29,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -44,15 +47,16 @@ public class ImageActivity extends AppCompatActivity {
     private FloatingActionButton floatingActionButton;
     private boolean cameraPermission = false;
     private static final int CAMERA_REQUEST_CODE = 100;
-
     private boolean imageTaken=false;
-
+    private GridView album;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
 
         myuser = FirebaseAuth.getInstance().getCurrentUser();
+
+        album=(GridView)findViewById(R.id.album);
 
         floatingActionButton=(FloatingActionButton)findViewById(R.id.capture_image);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -65,6 +69,8 @@ public class ImageActivity extends AppCompatActivity {
 
         initNavigationBar();
     }
+
+
 
     private void initNavigationBar() {
 

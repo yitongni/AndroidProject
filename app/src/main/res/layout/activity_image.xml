@@ -15,6 +15,15 @@
         app:srcCompat="@drawable/ic_add"
         app:backgroundTint="@color/purple_A700"/>
 
+    <GridView
+        android:id="@+id/album"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="3"
+        android:verticalSpacing="5dp"
+        android:horizontalSpacing="5dp">
+    </GridView>
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"
