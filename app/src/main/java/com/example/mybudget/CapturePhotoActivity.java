@@ -28,8 +28,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -56,6 +62,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
     FirebaseStorage storage;
     StorageReference storageReference;
 
+    private DatabaseReference databaseReference;
     private File imageFile;
     private String pathToFile;
     private boolean cameraPermission = false;
@@ -67,6 +74,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
         setContentView(R.layout.image_dialog_layout);
 
         myuser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseReference= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Images");
         editTextCategory = (AutoCompleteTextView) findViewById(R.id.textCategory);
         btnTakePicture=(ImageButton)findViewById(R.id.takePicture);
         savePicture=(Button)findViewById(R.id.saveImage);
@@ -77,7 +85,6 @@ public class CapturePhotoActivity extends AppCompatActivity {
                 getCameraPermission();
                 if(cameraPermission){
                     createImageFile();
-
                     if(imageFile!=null){
                         pathToFile=imageFile.getAbsolutePath();
                         Intent cameraIntent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -97,11 +104,31 @@ public class CapturePhotoActivity extends AppCompatActivity {
                     storage=FirebaseStorage.getInstance();
                     storageReference=storage.getReference();
 
-                    StorageReference ref = storageReference.child(myuser.getUid()).child(category).child(imageFile.getName());
+                    final StorageReference ref = storageReference.child(myuser.getUid()).child(category).child(imageFile.getName());
                     ref.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
                             //After saving goes back to previous activity
+                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    final String imageuri=uri.toString();
+                                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                            String id=databaseReference.push().getKey();
+                                            databaseReference.child(id).setValue(imageuri);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+                            });
+
                             Toast.makeText(CapturePhotoActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                             Intent myIntent=new Intent(CapturePhotoActivity.this, ImageActivity.class);
                             finish();
@@ -124,14 +151,12 @@ public class CapturePhotoActivity extends AppCompatActivity {
             }
         });
     }
-
     protected void onActivityResult(int requestCode, int resultCode, Intent cameraIntent){
         if(requestCode==CAMERA_REQUEST_CODE){
             if(resultCode==RESULT_OK){
                 Log.d(TAG, "Setting Image");
                 Bitmap bitmap= BitmapFactory.decodeFile(pathToFile);
                 imageView.setImageBitmap(bitmap);
-                //Picasso.with(CapturePhotoActivity.this).load(pathToFile).into(imageView);
             }
         }
     }
