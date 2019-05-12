@@ -1,56 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!--<Button-->
+        <!--android:id="@+id/editBudget"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="75dp"-->
+        <!--android:text="Set Budget"/>-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/textViewBudget"-->
+        <!--android:layout_width="190dp"-->
+        <!--android:layout_height="75dp"-->
+        <!--android:layout_toRightOf="@+id/editBudget"-->
+        <!--android:background="#FF44"-->
+        <!--android:gravity="center"-->
+        <!--android:textSize="25dp" />-->
+
     <TextView
-        android:id="@+id/textViewBudget"
-        android:layout_width="250dp"
+        android:id="@+id/textViewSpending"
+        android:layout_width="190dp"
         android:layout_height="75dp"
         android:clickable="true"
-        android:gravity="center"
-        android:textSize="25dp"/>
+        android:focusable="true"
+        android:focusableInTouchMode="true"/>
 
-    <EditText
-        android:id="@+id/editTextBudget"
-        android:layout_width="250dp"
-        android:layout_height="75dp"
-        android:background="#FF44"
-        android:hint="Enter a budget"
-        android:inputType="numberDecimal"
-        android:textSize="25dp" />
-
-    <Button
-        android:id="@+id/addCategory"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floating_action_button"
         android:layout_width="wrap_content"
-        android:layout_height="75dp"
-        android:layout_marginStart="300dp"
-        android:text="Add"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:clickable="true"
+        android:tint="@android:color/white"
+        app:srcCompat="@drawable/ic_add"
+        app:backgroundTint="@color/purple_A700"/>
 
-    <ListView
-        android:id="@+id/list_item"
+    <!--<Button-->
+        <!--android:id="@+id/addCategory"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="75dp"-->
+        <!--android:layout_marginStart="300dp"-->
+        <!--android:text="Add Category"/>-->
+
+    <!--<ListView-->
+        <!--android:id="@+id/list_item"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_marginTop="75dp"-->
+        <!--android:layout_marginBottom="60dp">-->
+    <!--</ListView>-->
+
+    <lecho.lib.hellocharts.view.PieChartView
+        android:id="@+id/chart"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="75dp"
-        android:layout_marginBottom="60dp">
-    </ListView>
+        android:layout_height="match_parent" />
 
-    <android.support.constraint.ConstraintLayout
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:background="?android:attr/windowBackground"
+        app:itemIconTint="@drawable/color_state_primary"
+        app:itemTextColor="@drawable/color_state_primary"
+        app:menu="@menu/navigation" />
 
-        <android.support.design.widget.BottomNavigationView
-            android:id="@+id/navigation"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="0dp"
-            android:background="?android:attr/windowBackground"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:menu="@menu/navigation" />
-    </android.support.constraint.ConstraintLayout>
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -6,13 +6,17 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.w3c.dom.Text;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -20,23 +24,8 @@ public class ProfileActivity extends AppCompatActivity {
     private Button logoutButton;
     private FirebaseAuth mAuth;
     private String userid;
-
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.profile:
-                    return true;
-                case R.id.myBudget:
-                    Intent myintent =new Intent(ProfileActivity.this, BudgetActivity.class);
-                    startActivity(myintent);
-                    return true;
-            }
-            return false;
-        }
-    };
+    private TextView email;
+    private FirebaseUser myuser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +34,11 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         logoutButton=(Button) findViewById(R.id.buttonLogOut);
+        email=(TextView) findViewById(R.id.textViewEmail);
+
+        myuser= FirebaseAuth.getInstance().getCurrentUser();
+        email.setText(myuser.getEmail());
+
         mAuth= FirebaseAuth.getInstance();
         mAuth.getCurrentUser().getUid();
 
@@ -58,16 +52,43 @@ public class ProfileActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         Log.d(TAG, user.getUid());
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        initNavigation();
+
     }
 
-    public void LogOut()
-    {
+    public void LogOut() {
         mAuth.signOut();
         finish();
-
         Intent myIntent= new Intent(ProfileActivity.this, MainActivity.class);
         startActivity(myIntent);
+    }
+
+    private void initNavigation() {
+
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        Menu menu=navigation.getMenu();
+        MenuItem menuItem=menu.getItem(0);
+        menuItem.setChecked(true);
+
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.profile:
+                        return true;
+                    case R.id.myBudget:
+                        Log.d(TAG, "Clicked budget");
+                        Intent myintent =new Intent(ProfileActivity.this, BudgetActivity.class);
+                        startActivity(myintent);
+                        return true;
+                    case R.id.images:
+                        Log.d(TAG, "Clicked Images");
+                        Intent imageIntent =new Intent(ProfileActivity.this, ImageActivity.class);
+                        startActivity(imageIntent);
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 }
