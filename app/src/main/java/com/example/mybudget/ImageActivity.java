@@ -35,7 +35,16 @@ import android.widget.LinearLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 import static java.security.AccessController.getContext;
 
@@ -49,14 +58,20 @@ public class ImageActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST_CODE = 100;
     private boolean imageTaken=false;
     private GridView album;
+    private ArrayList<ImageInformation> images=new ArrayList<>();
+    private StorageReference storage;
+    private DatabaseReference databaseReference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image);
 
         myuser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseReference= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Images");
 
         album=(GridView)findViewById(R.id.album);
+        storage= FirebaseStorage.getInstance().getReference();
 
         floatingActionButton=(FloatingActionButton)findViewById(R.id.capture_image);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -70,6 +85,38 @@ public class ImageActivity extends AppCompatActivity {
         initNavigationBar();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "OnStart " + myuser.getUid());
+        retrieveImages();
+    }
+
+    private void retrieveImages(){
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                images.clear();
+                for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
+                    Log.d(TAG, postSnapshot.getKey());
+                    Log.d(TAG, postSnapshot.getValue(String.class));
+                    ImageInformation imageInformation=new ImageInformation(postSnapshot.getValue(String.class), postSnapshot.getKey());
+                    images.add(imageInformation);
+                }
+                populateAlbum();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+    private void populateAlbum(){
+        //StorageReference filePath = storage.child(myuser.getUid());
+        album.setAdapter(new ImageAdapter(ImageActivity.this, images));
+    }
 
 
     private void initNavigationBar() {
