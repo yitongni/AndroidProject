@@ -8,10 +8,19 @@
     android:orientation="horizontal"
     tools:context=".ProfileActivity">
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_above="@+id/relativeLayout"
+        android:src="@drawable/piggybank"
+        android:layout_centerHorizontal="true"/>
+
     <TextView
         android:id="@+id/textViewEmail"
         android:layout_width="match_parent"
         android:layout_height="75dp"
+        android:layout_below="@+id/logo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -25,8 +34,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:text="Logout"
+        android:layout_below="@id/textViewEmail"
         android:id="@+id/buttonLogOut"/>
-
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"

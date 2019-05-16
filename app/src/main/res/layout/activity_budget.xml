@@ -11,22 +11,11 @@
         <!--android:layout_height="75dp"-->
         <!--android:text="Set Budget"/>-->
 
-    <!--<TextView-->
-        <!--android:id="@+id/textViewBudget"-->
-        <!--android:layout_width="190dp"-->
-        <!--android:layout_height="75dp"-->
-        <!--android:layout_toRightOf="@+id/editBudget"-->
-        <!--android:background="#FF44"-->
-        <!--android:gravity="center"-->
-        <!--android:textSize="25dp" />-->
-
     <TextView
         android:id="@+id/textViewSpending"
-        android:layout_width="190dp"
-        android:layout_height="75dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_action_button"

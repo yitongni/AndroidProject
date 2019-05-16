@@ -66,7 +66,7 @@ public class BudgetActivity extends AppCompatActivity {
 
     //private EditText editText;
     private Button addBudgetButton, addCategoryButton;
-    private TextView textView;
+    private TextView totalSpent;
     private User currentUser;
     private FirebaseUser myuser;
     private FloatingActionButton floatingActionButton;
@@ -106,7 +106,7 @@ public class BudgetActivity extends AppCompatActivity {
         categoryList=new ArrayList<>();
 
         //Set up buttons and textView
-        textView=(TextView) findViewById(R.id.textViewSpending);
+        totalSpent=(TextView) findViewById(R.id.textViewSpending);
         //addCategoryButton =(Button)findViewById(R.id.addCategory);
         floatingActionButton=(FloatingActionButton)findViewById(R.id.floating_action_button);
         //addBudgetButton=(Button)findViewById(R.id.editBudget);
@@ -238,7 +238,7 @@ public class BudgetActivity extends AppCompatActivity {
                 Log.d(TAG, "" + (calendar.get(Calendar.MONTH)+1));
                 Log.d(TAG, "" + calendar.get(Calendar.DAY_OF_MONTH));
 
-                DatePickerDialog datePickerDialog=new DatePickerDialog(BudgetActivity.this, new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog datePickerDialog=new DatePickerDialog(BudgetActivity.this, R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                         textview.setText(day + "/" +(month+1) +"/" +year);
@@ -387,6 +387,7 @@ public class BudgetActivity extends AppCompatActivity {
     public void showPieChart(){
         Log.d(TAG, "Showing Pie Chart");
 
+
         final PieChartView pieChartView = findViewById(R.id.chart);
 
         final List<SliceValue> pieData = new ArrayList<>();
@@ -408,7 +409,7 @@ public class BudgetActivity extends AppCompatActivity {
             pieData.add(new SliceValue(totalCost, color).setLabel(entry.getKey()+": "+ String.valueOf(totalCost)));
         }
 
-        //textView.setText(totalspent.toString());
+        totalSpent.setText(String.format(getResources().getString(R.string.totalCost), totalspent.toString()));
         Log.d(TAG, "Total Spent: " + totalspent.toString());
 
         final PieChartData pieChartData = new PieChartData(pieData);

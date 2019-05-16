@@ -2,55 +2,55 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/blue_grey_900">
 
     <AutoCompleteTextView
         android:id="@+id/editTextCategory"
-        style="?android:attr/spinnerItemStyle"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="wrap_content"
         android:hint="Enter a category"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.266" />
+        android:textColor="@color/green_A400"
+        android:textColorHint="@color/green_A400"
+        android:layout_margin="15dp" />
 
     <EditText
         android:id="@+id/description"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="wrap_content"
         android:hint="Enter a Description"
         android:layout_below="@+id/editTextCategory"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.514"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.132" />
+        android:textColor="@color/green_A400"
+        android:layout_margin="15dp"
+        android:textColorHint="@color/green_A400"/>
 
     <EditText
         android:id="@+id/categoryCost"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="wrap_content"
         android:hint="Enter a Cost"
         android:layout_below="@+id/description"
-        android:inputType="numberDecimal" />
+        android:textColor="@color/green_A400"
+        android:inputType="numberDecimal"
+        android:layout_margin="15dp"
+        android:textColorHint="@color/green_A400"/>
 
     <TextView
         android:id="@+id/date"
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:layout_below="@+id/categoryCost"
-        android:layout_toRightOf="@+id/chooseDate"/>
+        android:layout_below="@+id/chooseDate"
+        android:textColor="@color/green_A400"
+        android:textSize="25dp"
+        android:layout_marginLeft="130dp"/>
 
     <Button
         android:id="@+id/chooseDate"
-        android:layout_width="100dp"
-        android:layout_height="75dp"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
         android:text="Choose a date"
-        android:layout_below="@id/categoryCost"/>
-
+        android:layout_below="@id/categoryCost"
+        android:layout_centerInParent="true"
+        android:background="@drawable/btn_signup"/>
 
 </RelativeLayout>

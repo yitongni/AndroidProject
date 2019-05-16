@@ -1,12 +1,17 @@
 package com.example.mybudget;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.Nullable;
 
 public class User implements Serializable {
+
+    private static final String TAG = "User";
 
     private Double budget;
     private HashMap<String, ArrayList<Category>> userExpenses=new HashMap<>();
@@ -55,6 +60,22 @@ public class User implements Serializable {
 
     public HashMap<String, ArrayList<Category>> getUserCategory() {
         return this.userExpenses;
+    }
+
+    public Double getTotalSpent(){
+        Double totalSpent=0.0;
+        for (Map.Entry<String, ArrayList<Category>> entry : userExpenses.entrySet()) {
+
+            String key = entry.getKey();
+            Log.d(TAG, "KEY: " + key);
+
+            ArrayList<Category> categories=entry.getValue();
+            for(int i=0; i<categories.size(); i++){
+                Log.d(TAG, "Cost: " + categories.get(i).getCost());
+                totalSpent+=categories.get(i).getCost();
+            }
+        }
+        return totalSpent;
     }
 
 }
