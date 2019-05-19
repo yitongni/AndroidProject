@@ -211,7 +211,7 @@ public class BudgetActivity extends AppCompatActivity {
                     updateCategoryDatabase(category, description, cost, date);
                 }
                 else{
-                    Toast.makeText(BudgetActivity.this, "Don't leave any fields empty", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BudgetActivity.this, "Please fill out everything", Toast.LENGTH_SHORT).show();
                 }
             }
         });

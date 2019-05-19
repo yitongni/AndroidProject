@@ -79,6 +79,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
         myuser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Images");
         editTextCategory = (AutoCompleteTextView) findViewById(R.id.textCategory);
+
         ImageButton btnTakePicture = (ImageButton) findViewById(R.id.takePicture);
         Button savePicture = (Button) findViewById(R.id.saveImage);
         imageView=(ImageView)findViewById(R.id.picture);
@@ -87,11 +88,17 @@ public class CapturePhotoActivity extends AppCompatActivity {
             public void onClick(View view) {
                 getCameraPermission();
                 if(cameraPermission){
-                    createImageFile();
+                    File storage=getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                    try{
+                        imageFile=File.createTempFile("images", ".jpg", storage);
+                    }
+                    catch (IOException error){
+                        Log.d(TAG, "Error"+ error);
+                    }
                     if(imageFile!=null){
                         pathToFile=imageFile.getAbsolutePath();
-                        Intent cameraIntent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         imageUri= FileProvider.getUriForFile(CapturePhotoActivity.this, "com.example.mybudget", imageFile);
+                        Intent cameraIntent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                         startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
                     }
@@ -117,6 +124,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
 
+                                            //Adds image to database
                                             String id=databaseReference.push().getKey();
                                             ImageInformation imageInformation=new ImageInformation(imageuri, id, imageFile.getName());
                                             databaseReference.child(id).setValue(imageInformation);
@@ -153,23 +161,10 @@ public class CapturePhotoActivity extends AppCompatActivity {
         });
     }
     protected void onActivityResult(int requestCode, int resultCode, Intent cameraIntent){
-        if(requestCode==CAMERA_REQUEST_CODE){
-            if(resultCode==RESULT_OK){
-                Log.d(TAG, "Setting Image");
-                Bitmap bitmap= BitmapFactory.decodeFile(pathToFile);
-                imageView.setImageBitmap(bitmap);
-            }
-        }
-    }
-
-    private void createImageFile(){
-        String timestamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        File storage=getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        try{
-            imageFile=File.createTempFile(timestamp, ".jpg", storage);
-        }
-        catch (IOException error){
-            Log.d(TAG, "Error"+ error);
+        if(requestCode==CAMERA_REQUEST_CODE && resultCode==RESULT_OK){
+            Log.d(TAG, "Setting Image");
+            Bitmap bitmap= BitmapFactory.decodeFile(pathToFile);
+            imageView.setImageBitmap(bitmap);
         }
     }
 

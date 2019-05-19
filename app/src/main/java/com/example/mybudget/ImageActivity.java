@@ -72,6 +72,7 @@ public class ImageActivity extends AppCompatActivity {
         album=(GridView)findViewById(R.id.album);
         storage= FirebaseStorage.getInstance().getReference();
 
+        //To take picutre
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.capture_image);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,10 +93,12 @@ public class ImageActivity extends AppCompatActivity {
     }
 
     private void retrieveImages(){
-        databaseReference.addValueEventListener(new ValueEventListener() {
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 images.clear();
+                Log.d(TAG, "OnStart: retreiving" );
                 for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
                     Log.d(TAG, postSnapshot.getKey());
                     //Log.d(TAG, postSnapshot.getValue(String.class));
