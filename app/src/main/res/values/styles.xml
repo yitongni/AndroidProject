@@ -8,23 +8,4 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme.Popup">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowCloseOnTouchOutside">true</item>
-    </style>
-
-    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:background">@color/blue_grey_900</item>
-        <item name="android:textColor">@color/green_A200</item>
-        <item name="android:dayOfWeekTextAppearance">@color/green_A200</item>
-        <item name="android:dayOfWeekBackground">@color/green_A200</item>
-        <item name="android:textColorPrimary">@color/green_A200</item>
-        <item name="android:headerBackground">@color/green_A200</item>
-        <item name="android:calendarTextColor">@color/green_A200</item>
-        <item name="android:headerMonthTextAppearance">@color/green_A200</item>
-        <item name="android:headerDayOfMonthTextAppearance">@color/green_A200</item>
-        <item name="android:headerYearTextAppearance">@color/green_A200</item>
-    </style>
-
-
 </resources>

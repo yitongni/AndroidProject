@@ -29,19 +29,19 @@ import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    //TAG
     private static final String TAG="SignUp";
 
-    private Button buttonSignUp;
+    //Widget
     private EditText editTextEmail;
     private EditText editTextPassword;
     private EditText confirmPassword;
-    //private TextView textViewSignup;
-    private TextView textViewLogin;
-    private ImageView logo;
 
+    //Firebase
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDataBaseUsers;
     private User myuser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,10 +55,9 @@ public class SignUpActivity extends AppCompatActivity {
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
         confirmPassword=(EditText) findViewById(R.id.confirmPassword);
-        buttonSignUp = (Button) findViewById(R.id.buttonSignUp);
-        //textViewSignup  = (TextView) findViewById(R.id.SignUp);
-        logo=(ImageView)findViewById(R.id.logo);
-        textViewLogin=(TextView)findViewById(R.id.textViewLogIn);
+
+        Button buttonSignUp = (Button) findViewById(R.id.buttonSignUp);
+        TextView textViewLogin = (TextView) findViewById(R.id.textViewLogIn);
 
         textViewLogin.setOnClickListener(new View.OnClickListener() {
             @Override

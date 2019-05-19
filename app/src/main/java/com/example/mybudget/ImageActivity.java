@@ -26,13 +26,16 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -53,10 +56,6 @@ public class ImageActivity extends AppCompatActivity {
     private static final String TAG = "Image Activity";
 
     private FirebaseUser myuser;
-    private FloatingActionButton floatingActionButton;
-    private boolean cameraPermission = false;
-    private static final int CAMERA_REQUEST_CODE = 100;
-    private boolean imageTaken=false;
     private GridView album;
     private ArrayList<ImageInformation> images=new ArrayList<>();
     private StorageReference storage;
@@ -73,7 +72,7 @@ public class ImageActivity extends AppCompatActivity {
         album=(GridView)findViewById(R.id.album);
         storage= FirebaseStorage.getInstance().getReference();
 
-        floatingActionButton=(FloatingActionButton)findViewById(R.id.capture_image);
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.capture_image);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,8 +98,9 @@ public class ImageActivity extends AppCompatActivity {
                 images.clear();
                 for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
                     Log.d(TAG, postSnapshot.getKey());
-                    Log.d(TAG, postSnapshot.getValue(String.class));
-                    ImageInformation imageInformation=new ImageInformation(postSnapshot.getValue(String.class), postSnapshot.getKey());
+                    //Log.d(TAG, postSnapshot.getValue(String.class));
+
+                    ImageInformation imageInformation=new ImageInformation(postSnapshot.child("uri").getValue(String.class), postSnapshot.child("id").getValue(String.class), postSnapshot.child("name").getValue(String.class));
                     images.add(imageInformation);
                 }
                 populateAlbum();
@@ -115,7 +115,30 @@ public class ImageActivity extends AppCompatActivity {
     }
     private void populateAlbum(){
         //StorageReference filePath = storage.child(myuser.getUid());
-        album.setAdapter(new ImageAdapter(ImageActivity.this, images));
+        final ImageAdapter imageAdapter=new ImageAdapter(ImageActivity.this, images);
+        album.setAdapter(imageAdapter);
+
+        album.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                deleteImage(images.get(i));
+                images.remove(i);
+                imageAdapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+    }
+
+    private void deleteImage(final ImageInformation imageInformation){
+        StorageReference storageReference = storage.child(myuser.getUid()).child(imageInformation.getName());
+        storageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(ImageActivity.this, "Image Deleted", Toast.LENGTH_SHORT).show();
+                databaseReference.child(imageInformation.getId()).removeValue();
+            }
+        });
+
     }
 
 

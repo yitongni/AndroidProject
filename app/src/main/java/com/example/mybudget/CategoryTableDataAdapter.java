@@ -1,5 +1,6 @@
 package com.example.mybudget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ public class CategoryTableDataAdapter extends TableDataAdapter<Category> {
         super(context, data);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getCellView(int rowIndex, int columnIndex, ViewGroup parentView) {
         Category category = getRowData(rowIndex);
@@ -35,7 +37,7 @@ public class CategoryTableDataAdapter extends TableDataAdapter<Category> {
                 if(textViewCost.getParent() != null) {
                     ((ViewGroup)textViewCost.getParent()).removeView(textViewCost); // <- fix
                 }
-                textViewCost.setText(String.format("%.2f", category.getCost()));
+                textViewCost.setText(category.getCost().toString());
                 renderedView = textViewCost;
                 break;
             case 2:
@@ -46,11 +48,7 @@ public class CategoryTableDataAdapter extends TableDataAdapter<Category> {
                 textViewDate.setText(category.getDate());
                 renderedView = textViewDate;
                 break;
-//            case 3:
-//                renderedView = renderPrice(car);
-//                break;
         }
-
         return renderedView;
     }
 }

@@ -51,13 +51,9 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         Picasso.with(mContext).load(receipts.get(position).getUri()).into(imageView);
-//        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.MATCH_PARENTS, 30);
+
         imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         imageView.setAdjustViewBounds(true);
-//        imageView.getLayoutParams().height = 150;
-//        imageView.getLayoutParams().width = 150;
-//
-//        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
 
         imageView.setFocusable(false);
         imageView.setClickable(false);

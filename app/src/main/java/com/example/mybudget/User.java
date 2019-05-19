@@ -78,4 +78,13 @@ public class User implements Serializable {
         return totalSpent;
     }
 
+    public Double getTotalSpentForSingleCategory(String category){
+        Double totalSpent=0.0;
+        for (int i=0; i<userExpenses.get(category).size(); i++) {
+
+            Log.d(TAG, "Cost: " + userExpenses.get(category).get(i).getCost());
+            totalSpent+=userExpenses.get(category).get(i).getCost();
+        }
+        return totalSpent;
+    }
 }

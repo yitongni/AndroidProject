@@ -52,19 +52,22 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 public class CapturePhotoActivity extends AppCompatActivity {
 
     private static final String TAG = "Photo Activity";
-    private FirebaseUser myuser;
+
+    //Widget
     private AutoCompleteTextView editTextCategory;
-    private ImageButton btnTakePicture;
-    private Button savePicture;
+
     private ImageView imageView;
     private Uri imageUri;
 
-    FirebaseStorage storage;
-    StorageReference storageReference;
-
+    //Firebase
+    private FirebaseUser myuser;
     private DatabaseReference databaseReference;
+
+
     private File imageFile;
     private String pathToFile;
+
+    //Camera permission
     private boolean cameraPermission = false;
     private static final int CAMERA_REQUEST_CODE = 100;
 
@@ -76,8 +79,8 @@ public class CapturePhotoActivity extends AppCompatActivity {
         myuser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Images");
         editTextCategory = (AutoCompleteTextView) findViewById(R.id.textCategory);
-        btnTakePicture=(ImageButton)findViewById(R.id.takePicture);
-        savePicture=(Button)findViewById(R.id.saveImage);
+        ImageButton btnTakePicture = (ImageButton) findViewById(R.id.takePicture);
+        Button savePicture = (Button) findViewById(R.id.saveImage);
         imageView=(ImageView)findViewById(R.id.picture);
         btnTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,16 +98,13 @@ public class CapturePhotoActivity extends AppCompatActivity {
                 }
             }
         });
+
         savePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String category=editTextCategory.getText().toString();
-                if(!category.trim().equals(""))
-                {
-                    storage=FirebaseStorage.getInstance();
-                    storageReference=storage.getReference();
-
-                    final StorageReference ref = storageReference.child(myuser.getUid()).child(category).child(imageFile.getName());
+                if(!category.trim().equals("")) {
+                    final StorageReference ref =FirebaseStorage.getInstance().getReference().child(myuser.getUid()).child(imageFile.getName());
                     ref.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
@@ -118,7 +118,8 @@ public class CapturePhotoActivity extends AppCompatActivity {
                                         public void onDataChange(DataSnapshot dataSnapshot) {
 
                                             String id=databaseReference.push().getKey();
-                                            databaseReference.child(id).setValue(imageuri);
+                                            ImageInformation imageInformation=new ImageInformation(imageuri, id, imageFile.getName());
+                                            databaseReference.child(id).setValue(imageInformation);
                                         }
 
                                         @Override

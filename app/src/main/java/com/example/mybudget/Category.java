@@ -41,14 +41,6 @@ public class Category implements Serializable {
         return date;
     }
 
-    public void setCost(Double cost) {
-        this.cost = cost;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
