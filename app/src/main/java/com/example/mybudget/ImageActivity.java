@@ -26,13 +26,16 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -53,10 +56,6 @@ public class ImageActivity extends AppCompatActivity {
     private static final String TAG = "Image Activity";
 
     private FirebaseUser myuser;
-    private FloatingActionButton floatingActionButton;
-    private boolean cameraPermission = false;
-    private static final int CAMERA_REQUEST_CODE = 100;
-    private boolean imageTaken=false;
     private GridView album;
     private ArrayList<ImageInformation> images=new ArrayList<>();
     private StorageReference storage;
@@ -73,7 +72,8 @@ public class ImageActivity extends AppCompatActivity {
         album=(GridView)findViewById(R.id.album);
         storage= FirebaseStorage.getInstance().getReference();
 
-        floatingActionButton=(FloatingActionButton)findViewById(R.id.capture_image);
+        //Click button to take a picture
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.capture_image);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,15 +92,18 @@ public class ImageActivity extends AppCompatActivity {
         retrieveImages();
     }
 
+    //Retrieve the images
     private void retrieveImages(){
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 images.clear();
+                Log.d(TAG, "OnStart: retreiving" );
                 for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
                     Log.d(TAG, postSnapshot.getKey());
-                    Log.d(TAG, postSnapshot.getValue(String.class));
-                    ImageInformation imageInformation=new ImageInformation(postSnapshot.getValue(String.class), postSnapshot.getKey());
+                    //Log.d(TAG, postSnapshot.getValue(String.class));
+
+                    ImageInformation imageInformation=new ImageInformation(postSnapshot.child("uri").getValue(String.class), postSnapshot.child("id").getValue(String.class), postSnapshot.child("name").getValue(String.class));
                     images.add(imageInformation);
                 }
                 populateAlbum();
@@ -113,12 +116,39 @@ public class ImageActivity extends AppCompatActivity {
         });
 
     }
+
+    //Populate the view with images from firebase
     private void populateAlbum(){
-        //StorageReference filePath = storage.child(myuser.getUid());
-        album.setAdapter(new ImageAdapter(ImageActivity.this, images));
+
+        final ImageAdapter imageAdapter=new ImageAdapter(ImageActivity.this, images);
+        album.setAdapter(imageAdapter);
+
+        album.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                deleteImage(images.get(i));
+                images.remove(i);
+                imageAdapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+    }
+
+    //When you click and hold an image it will delete it
+    private void deleteImage(final ImageInformation imageInformation){
+        StorageReference storageReference = storage.child(myuser.getUid()).child(imageInformation.getName());
+        storageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(ImageActivity.this, "Image Deleted", Toast.LENGTH_SHORT).show();
+                databaseReference.child(imageInformation.getId()).removeValue();
+            }
+        });
+
     }
 
 
+    //Initiate navigation bar
     private void initNavigationBar() {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -131,7 +161,6 @@ public class ImageActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.profile:
-                        Log.d(TAG, "Clicked Profile");
                         Intent myintent =new Intent(ImageActivity.this, ProfileActivity.class);
                         startActivity(myintent);
                         return true;

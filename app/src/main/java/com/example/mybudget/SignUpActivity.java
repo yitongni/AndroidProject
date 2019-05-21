@@ -29,19 +29,19 @@ import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    //TAG
     private static final String TAG="SignUp";
 
-    private Button buttonSignUp;
+    //Widget
     private EditText editTextEmail;
     private EditText editTextPassword;
     private EditText confirmPassword;
-    //private TextView textViewSignup;
-    private TextView textViewLogin;
-    private ImageView logo;
 
+    //Firebase
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDataBaseUsers;
     private User myuser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,10 +55,9 @@ public class SignUpActivity extends AppCompatActivity {
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
         confirmPassword=(EditText) findViewById(R.id.confirmPassword);
-        buttonSignUp = (Button) findViewById(R.id.buttonSignUp);
-        //textViewSignup  = (TextView) findViewById(R.id.SignUp);
-        logo=(ImageView)findViewById(R.id.logo);
-        textViewLogin=(TextView)findViewById(R.id.textViewLogIn);
+
+        Button buttonSignUp = (Button) findViewById(R.id.buttonSignUp);
+        TextView textViewLogin = (TextView) findViewById(R.id.textViewLogIn);
 
         textViewLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,21 +77,24 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     //Get user username and password
-    public void registerUser() {
+    private void registerUser() {
         String email = editTextEmail.getText().toString().trim();
         String password  = editTextPassword.getText().toString().trim();
         String password2 = confirmPassword.getText().toString().trim();
 
+        //Makes sure username is not empty
         if(TextUtils.isEmpty(email)){
             Toast.makeText(this,"Please enter email",Toast.LENGTH_LONG).show();
             return;
         }
 
+        //Makes sure password is not empty
         if(TextUtils.isEmpty(password)){
             Toast.makeText(this,"Please enter password",Toast.LENGTH_LONG).show();
             return;
         }
 
+        //Makes sure user entered identical password
         if(!(password.equals(password2))){
             Toast.makeText(this,"Passwords does not match",Toast.LENGTH_LONG).show();
             return;
@@ -101,8 +103,8 @@ public class SignUpActivity extends AppCompatActivity {
         createAccount(email, password);
     }
 
-    public void createAccount(final String email, String password)
-    {
+    //Creates an account with email and password, adds it to database and signs them in
+    private void createAccount(final String email, String password) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -113,7 +115,6 @@ public class SignUpActivity extends AppCompatActivity {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
                             myuser.setEmail(user.getEmail());
                             myuser.setUserID(user.getUid());
-                            myuser.setBudget(0.00);
                             mDataBaseUsers.child(user.getUid()).setValue(myuser);
                             finish();
                             Intent myintent=new Intent(SignUpActivity.this, ProfileActivity.class);

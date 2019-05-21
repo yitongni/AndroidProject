@@ -21,6 +21,7 @@ public class Category implements Serializable {
         this.date=date1;
     }
 
+    //Getter functions
     public String getDescription() {
         return this.description;
     }
@@ -39,14 +40,6 @@ public class Category implements Serializable {
 
     public String getDate() {
         return date;
-    }
-
-    public void setCost(Double cost) {
-        this.cost = cost;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public void setId(String id) {

@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         textViewSignup  = (TextView) findViewById(R.id.textViewSignUp);
 
 
+        //User wants to sign in
         buttonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //User wants to sign up, so go to the sign up activity
         textViewSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,31 +64,34 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Retrieve user entered Email and Password when they want to sign in
-    public void getEmailAndPassword() {
+    private void getEmailAndPassword() {
         String email = editTextEmail.getText().toString().trim();
         String password  = editTextPassword.getText().toString().trim();
 
+        //makes sure email isn't empty
         if(TextUtils.isEmpty(email)){
             Toast.makeText(this,"Please enter email",Toast.LENGTH_LONG).show();
             return;
         }
 
+        //makes sure password isn't empty
         if(TextUtils.isEmpty(password)){
             Toast.makeText(this,"Please enter password",Toast.LENGTH_LONG).show();
             return;
         }
-        signIn(email, password); //For SignIn
+        signIn(email, password);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if user is signed in already
         FirebaseUser currentUser = mAuth.getCurrentUser();
         logIn(currentUser);
     }
 
-    public void signIn(String email, String password) {
+    //Sign user in
+    private void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -99,17 +104,18 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            //Toast.makeText(EmailPasswordActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "Failed to sign in.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
-    public void logIn(FirebaseUser currentUser) {
+    //Logs in user
+    private void logIn(FirebaseUser currentUser) {
 
         if(currentUser != null){ //that means user is already logged in
-            finish(); //so close this activity
-            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));  //and open profile activity
+            finish();
+            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
         }
     }
 }

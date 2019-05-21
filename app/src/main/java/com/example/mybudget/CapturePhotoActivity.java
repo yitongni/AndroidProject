@@ -52,19 +52,21 @@ import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 public class CapturePhotoActivity extends AppCompatActivity {
 
     private static final String TAG = "Photo Activity";
-    private FirebaseUser myuser;
+
+    //Widget
     private AutoCompleteTextView editTextCategory;
-    private ImageButton btnTakePicture;
-    private Button savePicture;
+
     private ImageView imageView;
     private Uri imageUri;
 
-    FirebaseStorage storage;
-    StorageReference storageReference;
-
+    //Firebase
+    private FirebaseUser myuser;
     private DatabaseReference databaseReference;
+
     private File imageFile;
     private String pathToFile;
+
+    //Camera permission
     private boolean cameraPermission = false;
     private static final int CAMERA_REQUEST_CODE = 100;
 
@@ -76,39 +78,48 @@ public class CapturePhotoActivity extends AppCompatActivity {
         myuser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Images");
         editTextCategory = (AutoCompleteTextView) findViewById(R.id.textCategory);
-        btnTakePicture=(ImageButton)findViewById(R.id.takePicture);
-        savePicture=(Button)findViewById(R.id.saveImage);
+
+        ImageButton btnTakePicture = (ImageButton) findViewById(R.id.takePicture);
+        Button savePicture = (Button) findViewById(R.id.saveImage);
         imageView=(ImageView)findViewById(R.id.picture);
+
+        //Starts the camera intent
         btnTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getCameraPermission();
                 if(cameraPermission){
-                    createImageFile();
+                    File storage=getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                    try{
+                        imageFile=File.createTempFile("images", ".jpg", storage);
+                    }
+                    catch (IOException error){
+                        Log.d(TAG, "Error"+ error);
+                    }
                     if(imageFile!=null){
                         pathToFile=imageFile.getAbsolutePath();
-                        Intent cameraIntent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         imageUri= FileProvider.getUriForFile(CapturePhotoActivity.this, "com.example.mybudget", imageFile);
+                        Intent cameraIntent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                         startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
                     }
                 }
+                else{
+                    Toast.makeText(CapturePhotoActivity.this, "You need to enable camera to use this feature", Toast.LENGTH_LONG).show();
+                }
             }
         });
+
+        //uploads the image to storage and to the firebase database
         savePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String category=editTextCategory.getText().toString();
-                if(!category.trim().equals(""))
-                {
-                    storage=FirebaseStorage.getInstance();
-                    storageReference=storage.getReference();
-
-                    final StorageReference ref = storageReference.child(myuser.getUid()).child(category).child(imageFile.getName());
+                if(!category.trim().equals("")) {
+                    final StorageReference ref =FirebaseStorage.getInstance().getReference().child(myuser.getUid()).child(imageFile.getName());
                     ref.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
-                            //After saving goes back to previous activity
                             ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
@@ -117,8 +128,15 @@ public class CapturePhotoActivity extends AppCompatActivity {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
 
+                                            //Adds image to database
                                             String id=databaseReference.push().getKey();
-                                            databaseReference.child(id).setValue(imageuri);
+                                            ImageInformation imageInformation=new ImageInformation(imageuri, id, imageFile.getName());
+                                            databaseReference.child(id).setValue(imageInformation);
+                                            Toast.makeText(CapturePhotoActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                                            //After uploading return to previous activity
+                                            Intent myIntent=new Intent(CapturePhotoActivity.this, ImageActivity.class);
+                                            finish();
+                                            startActivity(myIntent);
                                         }
 
                                         @Override
@@ -128,11 +146,6 @@ public class CapturePhotoActivity extends AppCompatActivity {
                                     });
                                 }
                             });
-
-                            Toast.makeText(CapturePhotoActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                            Intent myIntent=new Intent(CapturePhotoActivity.this, ImageActivity.class);
-                            finish();
-                            startActivity(myIntent);
                         }
                     })
                             .addOnFailureListener(new OnFailureListener() {
@@ -151,27 +164,17 @@ public class CapturePhotoActivity extends AppCompatActivity {
             }
         });
     }
+
+    //Result from camera
     protected void onActivityResult(int requestCode, int resultCode, Intent cameraIntent){
-        if(requestCode==CAMERA_REQUEST_CODE){
-            if(resultCode==RESULT_OK){
-                Log.d(TAG, "Setting Image");
-                Bitmap bitmap= BitmapFactory.decodeFile(pathToFile);
-                imageView.setImageBitmap(bitmap);
-            }
+        if(requestCode==CAMERA_REQUEST_CODE && resultCode==RESULT_OK){
+            Log.d(TAG, "Setting Image");
+            Bitmap bitmap= BitmapFactory.decodeFile(pathToFile);
+            imageView.setImageBitmap(bitmap);
         }
     }
 
-    private void createImageFile(){
-        String timestamp = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        File storage=getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        try{
-            imageFile=File.createTempFile(timestamp, ".jpg", storage);
-        }
-        catch (IOException error){
-            Log.d(TAG, "Error"+ error);
-        }
-    }
-
+    //Gets user permission to use camera
     private void getCameraPermission(){
         String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if(ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
@@ -180,6 +183,24 @@ public class CapturePhotoActivity extends AppCompatActivity {
         }
         else {
             cameraPermission=true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode) {
+            case CAMERA_REQUEST_CODE: {
+                if(grantResults.length > 0) {
+                    for(int i = 0; i < grantResults.length; i++) {
+                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            Log.d(TAG, "onRequestPermissionsResult: permission failed");
+                            return;
+                        }
+                    }
+                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
+                    cameraPermission = true;
+                }
+            }
         }
     }
 }

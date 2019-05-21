@@ -14,8 +14,9 @@
         app:layout_anchor="@+id/navigation"
         app:layout_anchorGravity="center|top"
         android:tint="@android:color/white"
-        app:srcCompat="@drawable/ic_photo_camera_black_24dp"
-        app:backgroundTint="@color/cyan_A400"/>
+        app:srcCompat="@drawable/ic_add_a_photo_black_24dp"
+        app:backgroundTint="@color/skyblue"
+        android:focusable="true" />
 
     <GridView
         android:id="@+id/album"
@@ -37,6 +38,5 @@
         app:itemIconTint="@drawable/color_state_primary"
         app:itemTextColor="@drawable/color_state_primary"
         app:menu="@menu/navigation" />
-
 
 </android.support.design.widget.CoordinatorLayout>

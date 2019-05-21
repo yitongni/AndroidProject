@@ -1,5 +1,6 @@
 package com.example.mybudget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,40 +18,35 @@ public class CategoryTableDataAdapter extends TableDataAdapter<Category> {
         super(context, data);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getCellView(int rowIndex, int columnIndex, ViewGroup parentView) {
         Category category = getRowData(rowIndex);
-        View renderedView = LayoutInflater.from(getContext()).inflate(R.layout.category_layout, parentView, false);
+
+        View renderedView=null;
         switch (columnIndex) {
             case 0:
-                TextView textView=(TextView)renderedView.findViewById(R.id.description);
-                if(textView.getParent() != null) {
-                    ((ViewGroup)textView.getParent()).removeView(textView); // <- fix
-                }
+                //Set the description
+                TextView textView=new TextView(getContext());
                 textView.setText(category.getDescription());
-                renderedView = textView;
+                textView.setTextSize(25);
+                renderedView=textView;
                 break;
             case 1:
-                TextView textViewCost=(TextView)renderedView.findViewById(R.id.cost);
-                if(textViewCost.getParent() != null) {
-                    ((ViewGroup)textViewCost.getParent()).removeView(textViewCost); // <- fix
-                }
-                textViewCost.setText(String.format("%.2f", category.getCost()));
-                renderedView = textViewCost;
+                //Set the cost
+                TextView textViewCost=new TextView(getContext());
+                textViewCost.setText(category.getCost().toString());
+                textViewCost.setTextSize(25);
+                renderedView=textViewCost;
                 break;
             case 2:
-                TextView textViewDate=(TextView)renderedView.findViewById(R.id.date);
-                if(textViewDate.getParent() != null) {
-                    ((ViewGroup)textViewDate.getParent()).removeView(textViewDate); // <- fix
-                }
-                textViewDate.setText(category.getDate());
-                renderedView = textViewDate;
+                //Set the category
+                TextView textViewCategory=new TextView(getContext());
+                textViewCategory.setText(category.getDate());
+                textViewCategory.setTextSize(25);
+                renderedView=textViewCategory;
                 break;
-//            case 3:
-//                renderedView = renderPrice(car);
-//                break;
         }
-
         return renderedView;
     }
 }

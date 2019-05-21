@@ -46,12 +46,9 @@ public class CategoryActivity extends AppCompatActivity {
     private static final String TAG = "CategoryActivity";
     private TextView mTextView, totalSpentTextView;
     private FirebaseUser myuser;
-//    private Category mCat;
-    private HashMap<String, Category> expenses;
     private String category;
     private ArrayList<Category> categories=new ArrayList<>();
-//    private ArrayList<Double> cost=new ArrayList<Double>();
-//    private Category myCat;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,12 +57,11 @@ public class CategoryActivity extends AppCompatActivity {
         mTextView=(TextView)findViewById(R.id.textViewCategory);
         totalSpentTextView=(TextView)findViewById(R.id.textViewTotalSpent);
         myuser= FirebaseAuth.getInstance().getCurrentUser();
-        expenses=new HashMap<>();
-        init();
+        getCategories();
     }
 
     //Getting Category
-    private void init(){
+    private void getCategories(){
         Log.d(TAG, "Initiating");
         Intent intent = getIntent();
         if (intent.hasExtra("Category")) {
@@ -74,12 +70,10 @@ public class CategoryActivity extends AppCompatActivity {
         retrieveInformation();
     }
 
-    //Delete on user touch
+    //Delete a specific item on the table
     private void deleteCost(final int position){
         Log.d(TAG, "Deleting");
         //cost.remove(position);
-        final String description=categories.get(position).getDescription();
-        final Double cost=categories.get(position).getCost();
         final String id=categories.get(position).getId();
         final DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(category).child(id);
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -87,23 +81,8 @@ public class CategoryActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 databaseReference.removeValue();
-//                for(DataSnapshot postSnapShot : dataSnapshot.getChildren()){
-//                    Log.d(TAG, "Deleting: " + postSnapShot.child("category").getValue(String.class));
-//                    Log.d(TAG, "Deleting: " + postSnapShot.child("cost").getValue(Double.class).toString());
-//
-//                    if(postSnapShot.child("category").getValue(String.class).equals(description)){
-//                        if(postSnapShot.child("cost").getValue(Double.class).equals(cost)){
-//                            Log.d(TAG, "Deleting: " + postSnapShot.child("category").getValue(String.class));
-//                            Log.d(TAG, "Deleting: " + postSnapShot.child("cost").getValue(Double.class).toString());
-//                            databaseReference.setValue(categories);
-//                            //postSnapShot.child("cost").getRef().removeValue();
-//                            break;
-//                        }
-//                    }
-//                }
                 //adapter.notifyDataSetChanged();
             }
-
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -112,7 +91,8 @@ public class CategoryActivity extends AppCompatActivity {
         });
 
     }
-//
+
+    //Retrieve specific category from the database
     private void retrieveInformation(){
         Query query= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(category);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -140,13 +120,15 @@ public class CategoryActivity extends AppCompatActivity {
 
     }
 
+    //Calculate total spent for this category
     private void calculateTotalSpent(){
-        Double totalspent=0.0;
+        Double totalspent=0.00;
         for(int i=0; i<categories.size(); i++){
             totalspent+=categories.get(i).getCost(); //Calculate user total price
         }
-        totalSpentTextView.setText(getString(R.string.totalCost, String.format("%.2f", totalspent)));
+        totalSpentTextView.setText(getString(R.string.totalCost,String.format("%.2f", totalspent)));
     }
+
     private void populateView(){
         Log.d(TAG, "Populating View");
 
@@ -159,17 +141,21 @@ public class CategoryActivity extends AppCompatActivity {
         SortableTableView<Category> sortableTableView = (SortableTableView<Category>) findViewById(R.id.tableView);
         final CategoryTableDataAdapter categoryTableDataAdapter=new CategoryTableDataAdapter(this, categories);
         sortableTableView.setDataAdapter(categoryTableDataAdapter);
+
+        //Set the header
         sortableTableView.setHeaderAdapter(new SimpleTableHeaderAdapter(this, TABLE_HEADERS));
 
-        int colorEvenRows = getResources().getColor(R.color.grey_3);
-        int colorOddRows = getResources().getColor(R.color.grey_20);
+        //Set row colors
+        int colorEvenRows = getResources().getColor(R.color.grey);
+        int colorOddRows = getResources().getColor(R.color.white);
         sortableTableView.setDataRowBackgroundProvider(TableDataRowBackgroundProviders.alternatingRowColors(colorEvenRows, colorOddRows));
+
+        //Set comparators so we can sort the rows
         sortableTableView.setColumnComparator(0, new CategoryDescriptionComparator());
         sortableTableView.setColumnComparator(1, new CategoryCostComparator());
         sortableTableView.setColumnComparator(2, new CategoryDateComparator());
 
-        //adapter=new CategoryAdapter(this, categories);
-
+        //Click and hold on a row to delete it
         sortableTableView.addDataLongClickListener(new TableDataLongClickListener<Category>() {
             @Override
             public boolean onDataLongClicked(int rowIndex, Category clickedData) {
@@ -180,20 +166,9 @@ public class CategoryActivity extends AppCompatActivity {
                 return true;
             }
         });
-//        ListView listView = (ListView) findViewById(R.id.costListView);
-//        listView.setAdapter(adapter);
-//
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                deleteCost(position);
-//                categories.remove(position);
-//                calculateTotalSpent();
-//            }
-//        });
-
     }
 
+    //Comparator for table to sort by cost
     private static class CategoryCostComparator implements Comparator<Category> {
         @Override
         public int compare(Category category1, Category category2) {
@@ -201,6 +176,7 @@ public class CategoryActivity extends AppCompatActivity {
         }
     }
 
+    //Comparator for table to sort by description
     private static class CategoryDescriptionComparator implements Comparator<Category> {
         @Override
         public int compare(Category category1, Category category2) {
@@ -208,6 +184,7 @@ public class CategoryActivity extends AppCompatActivity {
         }
     }
 
+    //Comparator for table to sort by date
     private static class CategoryDateComparator implements Comparator<Category> {
         @Override
         public int compare(Category category1, Category category2) {
@@ -218,7 +195,6 @@ public class CategoryActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             return 0;
-            //return category1.getDescription().compareTo(category2.getDescription());
         }
     }
 }
