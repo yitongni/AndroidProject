@@ -72,7 +72,7 @@ public class ImageActivity extends AppCompatActivity {
         album=(GridView)findViewById(R.id.album);
         storage= FirebaseStorage.getInstance().getReference();
 
-        //To take picutre
+        //Click button to take a picture
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.capture_image);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,8 +92,8 @@ public class ImageActivity extends AppCompatActivity {
         retrieveImages();
     }
 
+    //Retrieve the images
     private void retrieveImages(){
-
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -116,8 +116,10 @@ public class ImageActivity extends AppCompatActivity {
         });
 
     }
+
+    //Populate the view with images from firebase
     private void populateAlbum(){
-        //StorageReference filePath = storage.child(myuser.getUid());
+
         final ImageAdapter imageAdapter=new ImageAdapter(ImageActivity.this, images);
         album.setAdapter(imageAdapter);
 
@@ -132,6 +134,7 @@ public class ImageActivity extends AppCompatActivity {
         });
     }
 
+    //When you click and hold an image it will delete it
     private void deleteImage(final ImageInformation imageInformation){
         StorageReference storageReference = storage.child(myuser.getUid()).child(imageInformation.getName());
         storageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -145,6 +148,7 @@ public class ImageActivity extends AppCompatActivity {
     }
 
 
+    //Initiate navigation bar
     private void initNavigationBar() {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -157,7 +161,6 @@ public class ImageActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.profile:
-                        Log.d(TAG, "Clicked Profile");
                         Intent myintent =new Intent(ImageActivity.this, ProfileActivity.class);
                         startActivity(myintent);
                         return true;

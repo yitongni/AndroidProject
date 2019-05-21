@@ -40,7 +40,8 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // create a new ImageView for each item referenced by the Adapter
+
+        // Create a new Image for each Adapter
         Log.d(TAG, receipts.get(position).getUri());
         ImageView imageView;
         if(convertView==null){

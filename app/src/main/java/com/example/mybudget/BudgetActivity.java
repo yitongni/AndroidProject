@@ -131,14 +131,12 @@ public class BudgetActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.profile:
-                        Log.d(TAG, "Clicked Profile");
                         Intent myintent =new Intent(BudgetActivity.this, ProfileActivity.class);
                         startActivity(myintent);
                         return true;
                     case R.id.myBudget:
                         return true;
                     case R.id.images:
-                        Log.d(TAG, "Clicked Profile");
                         Intent imageIntent =new Intent(BudgetActivity.this, ImageActivity.class);
                         startActivity(imageIntent);
                         return true;
@@ -172,6 +170,8 @@ public class BudgetActivity extends AppCompatActivity {
         editTextCategory.setAdapter(adapter);
         final Button btn=(Button)dialogView.findViewById(R.id.chooseDate);
         final TextView textview =(TextView)dialogView.findViewById(R.id.date);
+
+        //Allows user to get date
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -226,7 +226,7 @@ public class BudgetActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    //updatesCategoryDatabase when new expenses is added
+    //updates database when new expenses is added
     private void updateCategoryDatabase(final String name, final String description, final Double cost, final String date) {
         Log.d(TAG, "Updating Category");
         final DatabaseReference databaseuser3=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
@@ -247,7 +247,8 @@ public class BudgetActivity extends AppCompatActivity {
         });
     }
 
-    public void retrieveCurrentUserInformation() {
+    //Get current user information
+    private void retrieveCurrentUserInformation() {
         Log.d(TAG, "Retrieving user information");
 
         final DatabaseReference databaseuser=FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
@@ -263,10 +264,6 @@ public class BudgetActivity extends AppCompatActivity {
 
                 currentUser.setUserID(dataSnapshot.child("userID").getValue(String.class));
                 Log.d(TAG, "UserID: " + currentUser.getUserID());
-
-                String mybudget = dataSnapshot.child("budget").getValue(Double.class).toString();
-                currentUser.setBudget(Double.parseDouble(mybudget));
-                Log.d(TAG, "Budget: " + currentUser.getBudget());
 
                 //Gets the categeory
                 for(DataSnapshot postSnapShot : dataSnapshot.child("Category").getChildren()){
@@ -315,7 +312,9 @@ public class BudgetActivity extends AppCompatActivity {
         });
     }
 
-    public void showPieChart(){
+
+    //display the user data as a pie chart
+    private void showPieChart(){
         Log.d(TAG, "Showing Pie Chart");
 
         final PieChartView pieChartView = findViewById(R.id.chart);
@@ -323,7 +322,7 @@ public class BudgetActivity extends AppCompatActivity {
         final List<SliceValue> pieData = new ArrayList<>();
 
         //Displays how much the user has spent
-        totalSpent.setText(String.format(getResources().getString(R.string.totalSpent), currentUser.getTotalSpent().toString()));
+        totalSpent.setText(String.format(getResources().getString(R.string.totalSpent), String.format("%.2f", currentUser.getTotalSpent())));
         Log.d(TAG, "Total Spent: " + currentUser.getTotalSpent().toString());
 
         //Iterate map and get total spent for each category and display it on a pie chart
@@ -342,7 +341,7 @@ public class BudgetActivity extends AppCompatActivity {
 
         //Display the pie chart
         final PieChartData pieChartData = new PieChartData(pieData);
-        pieChartData.setHasLabels(true).setValueLabelTextSize(20);
+        pieChartData.setHasLabels(true).setValueLabelTextSize(15);
         pieChartView.setPieChartData(pieChartData);
 
         //Selects section you clicked and lets you view the section in detail
@@ -350,9 +349,9 @@ public class BudgetActivity extends AppCompatActivity {
             @Override
             public void onValueSelected(int arcIndex, SliceValue value) {
                 String string=String.copyValueOf(value.getLabelAsChars());
-                int iend = string.indexOf(":"); //Finds the first occurrence of ":"
+                int index = string.indexOf(":"); //Finds the first occurrence of ":"
 
-                String subString= string.substring(0 , iend); //this will give category
+                String subString= string.substring(0 , index); //this will give category
                 Log.d(TAG, "You pressed: " + subString);
 
                 Intent newIntent=new Intent(BudgetActivity.this, CategoryActivity.class);

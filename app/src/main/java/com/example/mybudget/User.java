@@ -11,25 +11,15 @@ import androidx.annotation.Nullable;
 
 public class User implements Serializable {
 
+    //TAG
     private static final String TAG = "User";
 
-    private Double budget;
+    //Private Variables
     private HashMap<String, ArrayList<Category>> userExpenses=new HashMap<>();
     private String email;
     private String userID;
 
-    public User(){
-        budget = 0.00;
-    }
-
-    public Double getBudget() {
-        return budget;
-    }
-
-    public void setBudget(Double budget) {
-        this.budget = budget;
-    }
-
+    //Getter Functions
     public String getEmail() {
         return email;
     }
@@ -38,6 +28,7 @@ public class User implements Serializable {
         return userID;
     }
 
+    //Setter Functions
     public void setEmail(String email) {
         this.email = email;
     }
@@ -46,6 +37,7 @@ public class User implements Serializable {
         this.userID = userID;
     }
 
+    //Adds a category
     public void addCategory(String categoryName, String description, Double cost, String id, String date){
         Category category=new Category(description, cost, id, categoryName, date);
         ArrayList<Category> categories=new ArrayList<>();
@@ -58,10 +50,12 @@ public class User implements Serializable {
         }
     }
 
+    //Returns user expenses
     public HashMap<String, ArrayList<Category>> getUserCategory() {
         return this.userExpenses;
     }
 
+    //Calculates the total the user has spent
     public Double getTotalSpent(){
         Double totalSpent=0.0;
         for (Map.Entry<String, ArrayList<Category>> entry : userExpenses.entrySet()) {
@@ -78,6 +72,7 @@ public class User implements Serializable {
         return totalSpent;
     }
 
+    //Calculates how much a user spent on a single category
     public Double getTotalSpentForSingleCategory(String category){
         Double totalSpent=0.0;
         for (int i=0; i<userExpenses.get(category).size(); i++) {

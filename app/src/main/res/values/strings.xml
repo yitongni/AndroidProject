@@ -3,5 +3,18 @@
     <string name="budget">Budget: $%1$s</string>
     <string name="totalCost">Total: $%1$s</string>
     <string name="totalSpent">Total you spent: $%1$s</string>
-
+    <string name="descriptionPrompt">Enter a description</string>
+    <string name="costPrompt">Enter the cost</string>
+    <string name="categoryPrompt">Enter a category</string>
+    <string name="datePrompt">Select a date</string>
+    <string name="logout">Logout</string>
+    <string name="emailPrompt">Enter an email</string>
+    <string name="passwordPrompt">Enter a password</string>
+    <string name="confirmPasswordPrompt">Confirm password</string>
+    <string name="register">Register</string>
+    <string name="alreadyhaveLogin">Have an account already? Log In</string>
+    <string name="dontHaveAccount">Create an account</string>
+    <string name="signin">Log In</string>
+    <string name="save">Save</string>
+    <string name="newBudget">Start new budget</string>
 </resources>

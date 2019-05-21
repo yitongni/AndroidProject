@@ -70,7 +70,7 @@ public class CategoryActivity extends AppCompatActivity {
         retrieveInformation();
     }
 
-    //Delete on user touch
+    //Delete a specific item on the table
     private void deleteCost(final int position){
         Log.d(TAG, "Deleting");
         //cost.remove(position);
@@ -91,7 +91,8 @@ public class CategoryActivity extends AppCompatActivity {
         });
 
     }
-//
+
+    //Retrieve specific category from the database
     private void retrieveInformation(){
         Query query= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Category").child(category);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -119,12 +120,13 @@ public class CategoryActivity extends AppCompatActivity {
 
     }
 
+    //Calculate total spent for this category
     private void calculateTotalSpent(){
-        Double totalspent=0.0;
+        Double totalspent=0.00;
         for(int i=0; i<categories.size(); i++){
             totalspent+=categories.get(i).getCost(); //Calculate user total price
         }
-        totalSpentTextView.setText(getString(R.string.totalCost, totalspent.toString()));
+        totalSpentTextView.setText(getString(R.string.totalCost,String.format("%.2f", totalspent)));
     }
 
     private void populateView(){
@@ -139,11 +141,13 @@ public class CategoryActivity extends AppCompatActivity {
         SortableTableView<Category> sortableTableView = (SortableTableView<Category>) findViewById(R.id.tableView);
         final CategoryTableDataAdapter categoryTableDataAdapter=new CategoryTableDataAdapter(this, categories);
         sortableTableView.setDataAdapter(categoryTableDataAdapter);
+
+        //Set the header
         sortableTableView.setHeaderAdapter(new SimpleTableHeaderAdapter(this, TABLE_HEADERS));
 
         //Set row colors
-        int colorEvenRows = getResources().getColor(R.color.grey_3);
-        int colorOddRows = getResources().getColor(R.color.grey_20);
+        int colorEvenRows = getResources().getColor(R.color.grey);
+        int colorOddRows = getResources().getColor(R.color.white);
         sortableTableView.setDataRowBackgroundProvider(TableDataRowBackgroundProviders.alternatingRowColors(colorEvenRows, colorOddRows));
 
         //Set comparators so we can sort the rows
@@ -151,6 +155,7 @@ public class CategoryActivity extends AppCompatActivity {
         sortableTableView.setColumnComparator(1, new CategoryCostComparator());
         sortableTableView.setColumnComparator(2, new CategoryDateComparator());
 
+        //Click and hold on a row to delete it
         sortableTableView.addDataLongClickListener(new TableDataLongClickListener<Category>() {
             @Override
             public boolean onDataLongClicked(int rowIndex, Category clickedData) {
@@ -163,6 +168,7 @@ public class CategoryActivity extends AppCompatActivity {
         });
     }
 
+    //Comparator for table to sort by cost
     private static class CategoryCostComparator implements Comparator<Category> {
         @Override
         public int compare(Category category1, Category category2) {
@@ -170,6 +176,7 @@ public class CategoryActivity extends AppCompatActivity {
         }
     }
 
+    //Comparator for table to sort by description
     private static class CategoryDescriptionComparator implements Comparator<Category> {
         @Override
         public int compare(Category category1, Category category2) {
@@ -177,6 +184,7 @@ public class CategoryActivity extends AppCompatActivity {
         }
     }
 
+    //Comparator for table to sort by date
     private static class CategoryDateComparator implements Comparator<Category> {
         @Override
         public int compare(Category category1, Category category2) {
@@ -187,7 +195,6 @@ public class CategoryActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             return 0;
-            //return category1.getDescription().compareTo(category2.getDescription());
         }
     }
 }

@@ -77,21 +77,24 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     //Get user username and password
-    public void registerUser() {
+    private void registerUser() {
         String email = editTextEmail.getText().toString().trim();
         String password  = editTextPassword.getText().toString().trim();
         String password2 = confirmPassword.getText().toString().trim();
 
+        //Makes sure username is not empty
         if(TextUtils.isEmpty(email)){
             Toast.makeText(this,"Please enter email",Toast.LENGTH_LONG).show();
             return;
         }
 
+        //Makes sure password is not empty
         if(TextUtils.isEmpty(password)){
             Toast.makeText(this,"Please enter password",Toast.LENGTH_LONG).show();
             return;
         }
 
+        //Makes sure user entered identical password
         if(!(password.equals(password2))){
             Toast.makeText(this,"Passwords does not match",Toast.LENGTH_LONG).show();
             return;
@@ -100,8 +103,8 @@ public class SignUpActivity extends AppCompatActivity {
         createAccount(email, password);
     }
 
-    public void createAccount(final String email, String password)
-    {
+    //Creates an account with email and password, adds it to database and signs them in
+    private void createAccount(final String email, String password) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -112,7 +115,6 @@ public class SignUpActivity extends AppCompatActivity {
                             FirebaseUser user = firebaseAuth.getCurrentUser();
                             myuser.setEmail(user.getEmail());
                             myuser.setUserID(user.getUid());
-                            myuser.setBudget(0.00);
                             mDataBaseUsers.child(user.getUid()).setValue(myuser);
                             finish();
                             Intent myintent=new Intent(SignUpActivity.this, ProfileActivity.class);

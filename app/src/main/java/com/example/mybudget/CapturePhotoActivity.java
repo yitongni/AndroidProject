@@ -63,7 +63,6 @@ public class CapturePhotoActivity extends AppCompatActivity {
     private FirebaseUser myuser;
     private DatabaseReference databaseReference;
 
-
     private File imageFile;
     private String pathToFile;
 
@@ -83,6 +82,8 @@ public class CapturePhotoActivity extends AppCompatActivity {
         ImageButton btnTakePicture = (ImageButton) findViewById(R.id.takePicture);
         Button savePicture = (Button) findViewById(R.id.saveImage);
         imageView=(ImageView)findViewById(R.id.picture);
+
+        //Starts the camera intent
         btnTakePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,9 +104,13 @@ public class CapturePhotoActivity extends AppCompatActivity {
                         startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
                     }
                 }
+                else{
+                    Toast.makeText(CapturePhotoActivity.this, "You need to enable camera to use this feature", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
+        //uploads the image to storage and to the firebase database
         savePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,7 +120,6 @@ public class CapturePhotoActivity extends AppCompatActivity {
                     ref.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
-                            //After saving goes back to previous activity
                             ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
@@ -128,6 +132,11 @@ public class CapturePhotoActivity extends AppCompatActivity {
                                             String id=databaseReference.push().getKey();
                                             ImageInformation imageInformation=new ImageInformation(imageuri, id, imageFile.getName());
                                             databaseReference.child(id).setValue(imageInformation);
+                                            Toast.makeText(CapturePhotoActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                                            //After uploading return to previous activity
+                                            Intent myIntent=new Intent(CapturePhotoActivity.this, ImageActivity.class);
+                                            finish();
+                                            startActivity(myIntent);
                                         }
 
                                         @Override
@@ -137,11 +146,6 @@ public class CapturePhotoActivity extends AppCompatActivity {
                                     });
                                 }
                             });
-
-                            Toast.makeText(CapturePhotoActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                            Intent myIntent=new Intent(CapturePhotoActivity.this, ImageActivity.class);
-                            finish();
-                            startActivity(myIntent);
                         }
                     })
                             .addOnFailureListener(new OnFailureListener() {
@@ -160,6 +164,8 @@ public class CapturePhotoActivity extends AppCompatActivity {
             }
         });
     }
+
+    //Result from camera
     protected void onActivityResult(int requestCode, int resultCode, Intent cameraIntent){
         if(requestCode==CAMERA_REQUEST_CODE && resultCode==RESULT_OK){
             Log.d(TAG, "Setting Image");
@@ -168,6 +174,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
         }
     }
 
+    //Gets user permission to use camera
     private void getCameraPermission(){
         String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if(ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||

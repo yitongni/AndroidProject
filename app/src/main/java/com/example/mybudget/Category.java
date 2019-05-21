@@ -21,6 +21,7 @@ public class Category implements Serializable {
         this.date=date1;
     }
 
+    //Getter functions
     public String getDescription() {
         return this.description;
     }

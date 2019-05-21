@@ -1,6 +1,5 @@
 package com.example.mybudget;
 
-
 public class ImageInformation {
     private String name;
     private String uri;
@@ -12,6 +11,7 @@ public class ImageInformation {
         name=imageName;
     }
 
+    //Functions to retrieve member variables
     public String getId() {
         return id;
     }

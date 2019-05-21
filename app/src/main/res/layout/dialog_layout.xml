@@ -2,53 +2,52 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/blue_grey_900">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <AutoCompleteTextView
         android:id="@+id/editTextCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter a category"
-        android:textColor="@color/green_A400"
-        android:textColorHint="@color/green_A400"
+        android:hint="@string/categoryPrompt"
+        android:background="@drawable/edit_text"
+        android:paddingStart="10dp"
         android:layout_margin="15dp" />
 
     <EditText
         android:id="@+id/description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter a Description"
+        android:hint="@string/descriptionPrompt"
         android:layout_below="@+id/editTextCategory"
-        android:textColor="@color/green_A400"
-        android:layout_margin="15dp"
-        android:textColorHint="@color/green_A400"/>
+        android:background="@drawable/edit_text"
+        android:paddingStart="10dp"
+        android:layout_margin="15dp"/>
 
     <EditText
         android:id="@+id/categoryCost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter a Cost"
+        android:hint="@string/costPrompt"
         android:layout_below="@+id/description"
-        android:textColor="@color/green_A400"
         android:inputType="numberDecimal"
-        android:layout_margin="15dp"
-        android:textColorHint="@color/green_A400"/>
+        android:background="@drawable/edit_text"
+        android:paddingStart="10dp"
+        android:layout_margin="15dp" />
 
     <TextView
         android:id="@+id/date"
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:layout_below="@+id/chooseDate"
-        android:textColor="@color/green_A400"
-        android:textSize="25dp"
-        android:layout_marginLeft="130dp"/>
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:textSize="25dp"/>
 
     <Button
         android:id="@+id/chooseDate"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="Choose a date"
+        android:text="@string/datePrompt"
         android:layout_below="@id/categoryCost"
         android:layout_centerInParent="true"
         android:background="@drawable/btn_signup"/>
