@@ -57,11 +57,11 @@ public class CategoryActivity extends AppCompatActivity {
         mTextView=(TextView)findViewById(R.id.textViewCategory);
         totalSpentTextView=(TextView)findViewById(R.id.textViewTotalSpent);
         myuser= FirebaseAuth.getInstance().getCurrentUser();
-        init();
+        getCategories();
     }
 
     //Getting Category
-    private void init(){
+    private void getCategories(){
         Log.d(TAG, "Initiating");
         Intent intent = getIntent();
         if (intent.hasExtra("Category")) {
