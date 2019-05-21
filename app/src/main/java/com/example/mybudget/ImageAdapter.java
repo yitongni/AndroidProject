@@ -51,6 +51,7 @@ public class ImageAdapter extends BaseAdapter {
             imageView=(ImageView)convertView;
         }
 
+        //Load into view with picasso
         Picasso.with(mContext).load(receipts.get(position).getUri()).into(imageView);
 
         imageView.setLayoutParams(new GridView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));

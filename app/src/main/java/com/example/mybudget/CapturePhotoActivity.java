@@ -97,6 +97,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
                         Log.d(TAG, "Error"+ error);
                     }
                     if(imageFile!=null){
+                        //Start the intent
                         pathToFile=imageFile.getAbsolutePath();
                         imageUri= FileProvider.getUriForFile(CapturePhotoActivity.this, "com.example.mybudget", imageFile);
                         Intent cameraIntent =new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -114,6 +115,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
         savePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Makes sure user entered a category
                 String category=editTextCategory.getText().toString();
                 if(!category.trim().equals("")) {
                     final StorageReference ref =FirebaseStorage.getInstance().getReference().child(myuser.getUid()).child(imageFile.getName());
@@ -165,7 +167,7 @@ public class CapturePhotoActivity extends AppCompatActivity {
         });
     }
 
-    //Result from camera
+    //Result from camera, display on image view
     protected void onActivityResult(int requestCode, int resultCode, Intent cameraIntent){
         if(requestCode==CAMERA_REQUEST_CODE && resultCode==RESULT_OK){
             Log.d(TAG, "Setting Image");
@@ -181,11 +183,12 @@ public class CapturePhotoActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
             ActivityCompat.requestPermissions(this, permissions, CAMERA_REQUEST_CODE);
         }
-        else {
+        else { //If permission is granted already
             cameraPermission=true;
         }
     }
 
+    //Checks to see if permission is granted
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch(requestCode) {

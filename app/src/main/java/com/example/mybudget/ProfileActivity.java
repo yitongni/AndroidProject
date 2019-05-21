@@ -55,6 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         mAuth= FirebaseAuth.getInstance();
 
+        //Logs user out
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,6 +63,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        //start new
         startNewBudget.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -85,6 +87,23 @@ public class ProfileActivity extends AppCompatActivity {
     private void deleteOldBudget(){
         final DatabaseReference databaseuser= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid());
         databaseuser.child("Category").removeValue();
+        databaseuser.child("Images").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                //Get each images and delete from the storage
+                for(DataSnapshot dataSnapshot1: dataSnapshot.getChildren()){
+                    String imageName=dataSnapshot1.child("name").getValue(String.class);
+                    Log.d(TAG, imageName);
+                    StorageReference storageReference=FirebaseStorage.getInstance().getReference().child(myuser.getUid()).child(imageName);
+                    storageReference.delete();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         databaseuser.child("Images").removeValue();
     }
 

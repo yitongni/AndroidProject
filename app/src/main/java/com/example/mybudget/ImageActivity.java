@@ -102,7 +102,7 @@ public class ImageActivity extends AppCompatActivity {
                 for(DataSnapshot postSnapshot: dataSnapshot.getChildren()){
                     Log.d(TAG, postSnapshot.getKey());
                     //Log.d(TAG, postSnapshot.getValue(String.class));
-
+                    //Retrieving all the images
                     ImageInformation imageInformation=new ImageInformation(postSnapshot.child("uri").getValue(String.class), postSnapshot.child("id").getValue(String.class), postSnapshot.child("name").getValue(String.class));
                     images.add(imageInformation);
                 }
@@ -128,7 +128,7 @@ public class ImageActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 deleteImage(images.get(i));
                 images.remove(i);
-                imageAdapter.notifyDataSetChanged();
+                imageAdapter.notifyDataSetChanged(); //Notify adapter of change, and it will refresh the view
                 return true;
             }
         });
@@ -153,13 +153,13 @@ public class ImageActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         Menu menu=navigation.getMenu();
-        MenuItem menuItem=menu.getItem(2);
+        MenuItem menuItem=menu.getItem(2); //Makes the current activity light up on navigation bar
         menuItem.setChecked(true);
 
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
+                switch (item.getItemId()) { //Switches activity based on what is clicked
                     case R.id.profile:
                         Intent myintent =new Intent(ImageActivity.this, ProfileActivity.class);
                         startActivity(myintent);
