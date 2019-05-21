@@ -185,4 +185,22 @@ public class CapturePhotoActivity extends AppCompatActivity {
             cameraPermission=true;
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode) {
+            case CAMERA_REQUEST_CODE: {
+                if(grantResults.length > 0) {
+                    for(int i = 0; i < grantResults.length; i++) {
+                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            Log.d(TAG, "onRequestPermissionsResult: permission failed");
+                            return;
+                        }
+                    }
+                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
+                    cameraPermission = true;
+                }
+            }
+        }
+    }
 }
