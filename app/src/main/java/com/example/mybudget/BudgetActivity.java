@@ -72,27 +72,6 @@ public class BudgetActivity extends AppCompatActivity {
     private HashMap<String, ArrayList<Category>> userExpenses;
     private ArrayList<String> categoryList; //Determines all unique category
 
-    //Navigation Bar
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            //Moves to activity depending on what is clicked
-            switch (item.getItemId()) {
-                case R.id.profile:
-                    Intent myintent =new Intent(BudgetActivity.this, ProfileActivity.class);
-                    startActivity(myintent);
-                    return true;
-                case R.id.myBudget:
-                    return true;
-                case R.id.images:
-                    Intent imageIntent =new Intent(BudgetActivity.this, ImageActivity.class);
-                    startActivity(imageIntent);
-            }
-            return false;
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
