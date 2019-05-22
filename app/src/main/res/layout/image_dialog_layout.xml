@@ -23,7 +23,9 @@
                 android:layout_width="100dp"
                 android:layout_height="50dp"
                 android:src="@drawable/ic_add_a_photo_black_24dp"
+                android:layout_marginStart="10dp"
                 android:background="@drawable/btn_signup"
+                android:layout_marginTop="10dp"
                 android:layout_below="@id/textCategory"/>
 
             <Button
@@ -33,6 +35,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_below="@id/textCategory"
                 android:text="@string/save"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/btn_signup"
                 android:textSize="15sp"/>
 
