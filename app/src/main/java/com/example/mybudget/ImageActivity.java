@@ -42,6 +42,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -56,7 +57,6 @@ public class ImageActivity extends AppCompatActivity {
     private static final String TAG = "Image Activity";
 
     private FirebaseUser myuser;
-    private GridView album;
     private ArrayList<ImageInformation> images=new ArrayList<>();
     private StorageReference storage;
     private DatabaseReference databaseReference;
@@ -69,7 +69,7 @@ public class ImageActivity extends AppCompatActivity {
         myuser = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference= FirebaseDatabase.getInstance().getReference("/").child("users").child(myuser.getUid()).child("Images");
 
-        album=(GridView)findViewById(R.id.album);
+
         storage= FirebaseStorage.getInstance().getReference();
 
         //Click button to take a picture
@@ -94,7 +94,8 @@ public class ImageActivity extends AppCompatActivity {
 
     //Retrieve the images
     private void retrieveImages(){
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        Query query=databaseReference;
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 images.clear();
@@ -121,6 +122,7 @@ public class ImageActivity extends AppCompatActivity {
     private void populateAlbum(){
 
         final ImageAdapter imageAdapter=new ImageAdapter(ImageActivity.this, images);
+        GridView album=(GridView)findViewById(R.id.album);
         album.setAdapter(imageAdapter);
 
         album.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
