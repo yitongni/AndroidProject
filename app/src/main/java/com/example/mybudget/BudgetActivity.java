@@ -150,7 +150,7 @@ public class BudgetActivity extends AppCompatActivity {
         final Button btn=(Button)dialogView.findViewById(R.id.chooseDate);
         final TextView textview =(TextView)dialogView.findViewById(R.id.date);
 
-        //Allows user to get date
+        //Allows user to pick a date
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -182,10 +182,10 @@ public class BudgetActivity extends AppCompatActivity {
                 String description =editTextDescription.getText().toString();
                 Double cost=0.0;
                 if(!(editTextCost.getText().toString().equals(""))){
-                    cost= Double.parseDouble(editTextCost.getText().toString());
+                    cost= Double.parseDouble(editTextCost.getText().toString()); //get cost
                 }
-                String category=editTextCategory.getText().toString();
-                String date=textview.getText().toString();
+                String category=editTextCategory.getText().toString(); //get category
+                String date=textview.getText().toString(); //get date
                 if (!(description.trim().equals("")) && !(category.trim().equals("")) && !(date.trim().equals(""))) { //Make sure it not empty string
                     updateCategoryDatabase(category, description, cost, date);
                 }
@@ -214,10 +214,10 @@ public class BudgetActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Updating");
                 Log.d(TAG, databaseuser3.push().getKey());
-                String id=databaseuser3.push().getKey();
-                Category category=new Category(description, cost, id, name, date);
+                String id=databaseuser3.push().getKey(); //gets the push key
+                Category category=new Category(description, cost, id, name, date); //set it to the category
                 currentUser.addCategory(name, description, cost, id, date);
-                databaseuser3.child("Category").child(name).child(id).setValue(category);
+                databaseuser3.child("Category").child(name).child(id).setValue(category); //add to database
             }
 
             @Override
@@ -255,6 +255,7 @@ public class BudgetActivity extends AppCompatActivity {
                         Log.d(TAG, "Cost: " + postSnapShot2.getValue(Category.class).getCost());
                         Log.d(TAG, "ID: " + postSnapShot2.getValue(Category.class).getId());
 
+                        //Retrieving category
                         Category category=new Category(postSnapShot2.getValue(Category.class).getDescription(),
                                 postSnapShot2.getValue(Category.class).getCost(), postSnapShot2.getValue(Category.class).getId(),
                                 postSnapShot2.getValue(Category.class).getCategory(), postSnapShot2.getValue(Category.class).getDate());
@@ -271,8 +272,9 @@ public class BudgetActivity extends AppCompatActivity {
                         }
                     }
                 }
-                for (Map.Entry<String, ArrayList<Category>> entry : userExpenses.entrySet()) {
 
+                //Adding to current user
+                for (Map.Entry<String, ArrayList<Category>> entry : userExpenses.entrySet()) {
                     String key = entry.getKey();
                     Log.d(TAG, "KEY: " + key);
 

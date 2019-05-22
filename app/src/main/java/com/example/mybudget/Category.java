@@ -42,6 +42,7 @@ public class Category implements Serializable {
         return date;
     }
 
+    //Setter function
     public void setId(String id) {
         this.id = id;
     }
